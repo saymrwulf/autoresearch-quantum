@@ -1,0 +1,73 @@
+rung: 1
+name: "[[4,2,2]] Encoded Magic-State Preparation"
+description: "Baseline ratchet over preparation, verification, and postselection choices for the smallest encoded magic-state experiment."
+objective: "Maximize acceptance-weighted encoded magic quality for [[4,2,2]] T-state preparation on a backend-aware cheap tier."
+
+bootstrap_incumbent:
+  seed_style: h_p
+  encoder_style: cx_chain
+  verification: both
+  postselection: all_measured
+  ancilla_strategy: dedicated_pair
+  optimization_level: 2
+  layout_method: sabre
+  routing_method: sabre
+  approximation_degree: 1.0
+  target_backend: fake_brisbane
+  noise_backend: fake_brisbane
+  shots: 512
+  repeats: 2
+  notes: "Bootstrap incumbent for encoded T-state preparation."
+
+search_space:
+  max_challengers_per_step: 8
+  dimensions:
+    seed_style: [h_p, ry_rz, u_magic]
+    encoder_style: [cx_chain, cz_compiled]
+    verification: [both, z_only, x_only]
+    postselection: [all_measured, z_only, none]
+    ancilla_strategy: [dedicated_pair, reused_single]
+    optimization_level: [1, 2, 3]
+
+tier_policy:
+  cheap_margin: 0.002
+  confirmation_margin: 0.0
+  cheap_shots: 512
+  expensive_shots: 1024
+  cheap_repeats: 2
+  expensive_repeats: 1
+  promote_top_k: 2
+  enable_hardware: false
+  confirm_incumbent_on_hardware: true
+  hardware_budget: 1
+
+score:
+  name: weighted_acceptance_cost
+  base_cost: 1.0
+  cheap_quality:
+    ideal_fidelity: 0.10
+    noisy_fidelity: 0.40
+    logical_witness: 0.25
+    codespace_rate: 0.15
+    stability_score: 0.05
+    spectator_alignment: 0.05
+  expensive_quality:
+    logical_witness: 0.55
+    codespace_rate: 0.15
+    stability_score: 0.20
+    spectator_alignment: 0.10
+  cost_weights:
+    two_qubit_count: 0.08
+    depth: 0.01
+    shot_count: 0.00020
+    runtime_estimate: 0.015
+    queue_cost_proxy: 0.30
+
+step_budget: 3
+patience: 2
+
+hardware:
+  backend_name:
+  channel:
+  instance:
+  token_env_var: QISKIT_IBM_TOKEN

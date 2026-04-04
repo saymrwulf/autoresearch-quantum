@@ -1,0 +1,73 @@
+rung: 2
+name: "Backend-Aware Stability Rung"
+description: "Same [[4,2,2]] task, but with repeated cheap-tier runs, backend variation, and stronger stability pressure."
+objective: "Favor experiment settings that hold score under calibration-like backend changes and repeated noisy evaluation."
+
+bootstrap_incumbent:
+  seed_style: h_p
+  encoder_style: cx_chain
+  verification: both
+  postselection: all_measured
+  ancilla_strategy: dedicated_pair
+  optimization_level: 3
+  layout_method: sabre
+  routing_method: sabre
+  approximation_degree: 1.0
+  target_backend: fake_kyoto
+  noise_backend: fake_kyoto
+  shots: 768
+  repeats: 3
+  notes: "Stability-focused bootstrap incumbent."
+
+search_space:
+  max_challengers_per_step: 8
+  dimensions:
+    target_backend: [fake_kyoto, fake_brisbane, fake_sherbrooke]
+    noise_backend: [fake_kyoto, fake_brisbane, fake_sherbrooke]
+    verification: [both, z_only]
+    postselection: [all_measured, z_only]
+    optimization_level: [1, 2, 3]
+    layout_method: [sabre, dense]
+    routing_method: [sabre, basic]
+
+tier_policy:
+  cheap_margin: 0.001
+  confirmation_margin: 0.0
+  cheap_shots: 768
+  expensive_shots: 1536
+  cheap_repeats: 3
+  expensive_repeats: 1
+  promote_top_k: 2
+  enable_hardware: false
+  confirm_incumbent_on_hardware: true
+  hardware_budget: 1
+
+score:
+  name: weighted_acceptance_cost
+  base_cost: 1.0
+  cheap_quality:
+    noisy_fidelity: 0.30
+    logical_witness: 0.25
+    codespace_rate: 0.20
+    stability_score: 0.20
+    spectator_alignment: 0.05
+  expensive_quality:
+    logical_witness: 0.45
+    codespace_rate: 0.15
+    stability_score: 0.30
+    spectator_alignment: 0.10
+  cost_weights:
+    two_qubit_count: 0.06
+    depth: 0.01
+    shot_count: 0.00025
+    runtime_estimate: 0.02
+    queue_cost_proxy: 0.35
+
+step_budget: 3
+patience: 2
+
+hardware:
+  backend_name:
+  channel:
+  instance:
+  token_env_var: QISKIT_IBM_TOKEN

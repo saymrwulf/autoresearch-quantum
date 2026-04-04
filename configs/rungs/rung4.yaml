@@ -1,0 +1,73 @@
+rung: 4
+name: "Factory-Style Cost Rung"
+description: "Shift the scalar score away from best-state chasing toward accepted states per cost proxy."
+objective: "Optimize accepted encoded magic states per unit cost, using circuit suite cost as a first factory-style proxy."
+
+bootstrap_incumbent:
+  seed_style: ry_rz
+  encoder_style: cx_chain
+  verification: z_only
+  postselection: z_only
+  ancilla_strategy: reused_single
+  optimization_level: 3
+  layout_method: dense
+  routing_method: basic
+  approximation_degree: 1.0
+  target_backend: fake_brisbane
+  noise_backend: fake_brisbane
+  shots: 384
+  repeats: 2
+  notes: "Throughput-oriented incumbent."
+
+search_space:
+  max_challengers_per_step: 6
+  dimensions:
+    verification: [z_only, both, none]
+    postselection: [z_only, all_measured, none]
+    ancilla_strategy: [reused_single, dedicated_pair]
+    optimization_level: [2, 3]
+    layout_method: [dense, sabre]
+    routing_method: [basic, sabre]
+    shots: [256, 384, 512]
+
+tier_policy:
+  cheap_margin: 0.001
+  confirmation_margin: 0.0
+  cheap_shots: 384
+  expensive_shots: 1024
+  cheap_repeats: 2
+  expensive_repeats: 1
+  promote_top_k: 1
+  enable_hardware: false
+  confirm_incumbent_on_hardware: true
+  hardware_budget: 1
+
+score:
+  name: factory_throughput
+  base_cost: 1.0
+  cheap_quality:
+    noisy_fidelity: 0.15
+    logical_witness: 0.25
+    codespace_rate: 0.20
+    stability_score: 0.10
+    spectator_alignment: 0.10
+  expensive_quality:
+    logical_witness: 0.40
+    codespace_rate: 0.20
+    stability_score: 0.10
+    spectator_alignment: 0.10
+  cost_weights:
+    two_qubit_count: 0.10
+    depth: 0.02
+    shot_count: 0.00040
+    runtime_estimate: 0.03
+    queue_cost_proxy: 0.50
+
+step_budget: 3
+patience: 2
+
+hardware:
+  backend_name:
+  channel:
+  instance:
+  token_env_var: QISKIT_IBM_TOKEN

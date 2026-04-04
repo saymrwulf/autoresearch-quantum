@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoresearch-quantum"
+version = "0.1.0"
+description = "Karpathy-style autoresearch harness for encoded magic-state preparation experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Codex" }
+]
+dependencies = [
+  "qiskit>=2.3,<3",
+  "qiskit-aer>=0.17,<0.18",
+  "pyyaml>=6,<7",
+]
+
+[project.optional-dependencies]
+hardware = [
+  "qiskit-ibm-runtime>=0.46,<0.47",
+]
+dev = [
+  "pytest>=9,<10",
+]
+
+[project.scripts]
+autoresearch-quantum = "autoresearch_quantum.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

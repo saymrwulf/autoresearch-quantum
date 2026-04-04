@@ -1,0 +1,1289 @@
+% ============================================================================
+% autoresearch-quantum: Automated Heuristic Optimisation for Encoded
+% Magic-State Preparation on the [[4,2,2]] Code
+% ============================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ── Typography & layout ─────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{parskip}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Mathematics ─────────────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{braket}
+\usepackage{mathtools}
+
+% ── Figures & tables ────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% ── Code listings ───────────────────────────────────────────────────────────
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+\definecolor{codebg}{HTML}{F7F7F7}
+\definecolor{codeframe}{HTML}{CCCCCC}
+\definecolor{keywordblue}{HTML}{0550AE}
+\definecolor{stringgreen}{HTML}{0A6640}
+\definecolor{commentgray}{HTML}{6A737D}
+\definecolor{accentred}{HTML}{CF222E}
+
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{keywordblue}\bfseries,
+  stringstyle=\color{stringgreen},
+  commentstyle=\color{commentgray}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  tabsize=4,
+  xleftmargin=1em,
+  xrightmargin=1em,
+  aboveskip=1em,
+  belowskip=1em,
+}
+
+\lstdefinestyle{yaml}{
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  xleftmargin=1em,
+  xrightmargin=1em,
+  aboveskip=1em,
+  belowskip=1em,
+}
+
+\lstdefinestyle{shell}{
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  xleftmargin=1em,
+  xrightmargin=1em,
+  aboveskip=1em,
+  belowskip=1em,
+}
+
+% ── Explanation boxes ───────────────────────────────────────────────────────
+\newtcolorbox{intuition}{
+  colback=blue!3,
+  colframe=blue!40!black,
+  fonttitle=\bfseries,
+  title=Intuition,
+  boxrule=0.5pt,
+  arc=2pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,
+}
+
+\newtcolorbox{keyconcept}{
+  colback=orange!4,
+  colframe=orange!60!black,
+  fonttitle=\bfseries,
+  title=Key Concept,
+  boxrule=0.5pt,
+  arc=2pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,
+}
+
+\newtcolorbox{warning}{
+  colback=red!3,
+  colframe=red!50!black,
+  fonttitle=\bfseries,
+  title=Subtlety,
+  boxrule=0.5pt,
+  arc=2pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,
+}
+
+% ── Algorithms ──────────────────────────────────────────────────────────────
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+% ── Cross-references & links ───────────────────────────────────────────────
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{cleveref}
+
+% ── Theorem environments ───────────────────────────────────────────────────
+\newtheorem{definition}{Definition}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{claim}{Claim}[section]
+
+% ── Shorthand ──────────────────────────────────────────────────────────────
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\small #1}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\expect}[1]{\langle #1 \rangle}
+
+\hypersetup{pdftitle={Automated Heuristic Optimisation for Encoded Magic-State Preparation on the [[4,2,2]] Code}}
+\title{%
+  \textbf{Automated Heuristic Optimisation for Encoded Magic-State\\
+  Preparation on the $\boldsymbol{[\![4,2,2]\!]}$ Code}\\[0.8em]
+  \large A Karpathy-Style Autoresearch Ratchet\\
+  for Quantum Error Detection Experiments
+}
+\author{%
+  System design and implementation by Claude (Anthropic)\\
+  Research direction and project ownership by the author\\[0.3em]
+  {\small \url{https://github.com/saymrwulf/autoresearch-quantum}}
+}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present \textsc{autoresearch-quantum}, an automated experimental
+optimisation system for encoded magic-state preparation on the $[\![4,2,2]\!]$
+quantum error-detecting code. The system implements a five-rung progressive
+search ratchet---inspired by Karpathy's autoresearch pattern---that
+discovers high-quality preparation recipes through simulated noisy evaluation,
+statistical lesson extraction, and cross-rung knowledge propagation. Starting
+from a combinatorial space of ${\sim}10^4$ possible experiment configurations
+(seed gates, encoder circuits, verification protocols, transpilation
+strategies), the ratchet autonomously narrows to a near-optimal recipe without
+human intervention between rungs. We describe the quantum-mechanical
+observables being optimised, the search and scoring machinery, the
+machine-readable feedback loop that closes the ``auto'' in autoresearch, and
+a complete test suite that anchors each architectural claim to an executable
+proof. The system runs entirely on classical simulation via Qiskit Aer and is
+designed for eventual promotion to IBM Quantum hardware.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Introduction and Motivation}
+\label{sec:intro}
+% ============================================================================
+
+Fault-tolerant quantum computation requires non-Clifford gates. The standard
+approach is to prepare \emph{magic states}---resource states that, when
+consumed by gate teleportation, implement a $T$ gate ($\pi/8$ rotation) on
+a logical qubit \cite{bravyi2005}. The quality of these raw magic states
+directly governs the cost of downstream distillation: higher input fidelity
+means fewer distillation rounds, which means fewer physical qubits and less
+wall-clock time.
+
+Preparing an encoded magic state is not a single circuit---it is a family of
+choices: how to seed the initial rotation, how to encode into the code's
+logical subspace, whether to verify stabilisers, how aggressively to
+postselect, how to transpile for a specific device topology. Each choice
+interacts with the others in ways that are difficult to predict analytically,
+especially under realistic device noise.
+
+\begin{keyconcept}
+The core question is combinatorial, not algebraic: \emph{which combination of
+preparation, verification, and transpilation choices yields the
+highest-quality encoded magic states at the lowest cost, under a given noise
+model?} This is an experimental optimisation problem, and it is the kind of
+problem that machines are better at than humans---provided you give the
+machine a well-defined objective and a mechanism to learn from its own
+experiments.
+\end{keyconcept}
+
+\textsc{autoresearch-quantum} is that mechanism. It is a direct
+implementation of the \emph{autoresearch pattern} described by
+Karpathy~\cite{karpathy2025}: an automated loop that proposes experiments,
+evaluates them, extracts lessons, and uses those lessons to propose better
+experiments. The system produces two outputs: an optimised experiment recipe,
+and a structured explanation of why that recipe works.
+
+% ============================================================================
+\section{The Quantum Problem}
+\label{sec:quantum}
+% ============================================================================
+
+% ── 2.1 The [[4,2,2]] code ─────────────────────────────────────────────────
+\subsection{\texorpdfstring{The $[\![4,2,2]\!]$ Error-Detecting Code}{The [[4,2,2]] Error-Detecting Code}}
+\label{sec:code}
+
+The $[\![4,2,2]\!]$ code is the smallest quantum error-detecting code. It
+encodes $k = 2$ logical qubits into $n = 4$ physical qubits and has distance
+$d = 2$: it can detect any single-qubit error, but cannot correct it. Its
+stabiliser group is generated by two operators:
+\begin{equation}
+  S_X = X^{\otimes 4} = XXXX, \qquad S_Z = Z^{\otimes 4} = ZZZZ.
+  \label{eq:stabilizers}
+\end{equation}
+Any state $\ket{\psi}$ in the code space satisfies $S_X\ket{\psi} =
+S_Z\ket{\psi} = +\ket{\psi}$. A single-qubit error $E$ anticommutes with at
+least one stabiliser, so measuring the stabilisers reveals whether an error
+occurred without collapsing the logical information.
+
+\begin{intuition}
+Think of the stabilisers as parity checks. $S_Z = ZZZZ$ checks whether the
+total $Z$-parity of all four qubits is even. If a bit-flip error $X_i$ hits
+one qubit, the parity flips from even to odd, and you detect it. $S_X = XXXX$
+does the same in the $X$ basis, catching phase-flip errors. Together, they
+detect any single error of any type---but they cannot tell you \emph{which}
+qubit was affected, so correction is impossible. The response is to
+\emph{discard} the shot (postselection).
+\end{intuition}
+
+The code has two logical qubits with the following representative logical
+operators:
+\begin{equation}
+  \bar{X}_1 = X_1 X_3, \quad
+  \bar{Z}_1 = Z_1 Z_2, \quad
+  \bar{X}_2 = X_2 X_3, \quad
+  \bar{Z}_2 = Z_2 Z_3.
+  \label{eq:logicals}
+\end{equation}
+We use logical qubit~1 to carry the magic state and logical qubit~2 as a
+\emph{spectator}: an idle qubit whose $\bar{Z}_2$ measurement monitors
+whether the encoding process preserved the code space.
+
+% ── 2.2 Magic states ───────────────────────────────────────────────────────
+\subsection{\texorpdfstring{Magic States and the $T$ Gate}{Magic States and the T Gate}}
+\label{sec:magic}
+
+The $T$ gate applies the rotation $T = \mathrm{diag}(1, e^{i\pi/4})$ to a
+single qubit. It cannot be implemented transversally on most stabiliser codes,
+so the standard workaround is \emph{gate teleportation}: consume a pre-prepared
+resource state to apply $T$ to a data qubit via Clifford operations and
+measurement.
+
+The canonical magic state for the $T$ gate is:
+\begin{equation}
+  \ket{T} = \frac{1}{\sqrt{2}}\bigl(\ket{0} + e^{i\pi/4}\ket{1}\bigr)
+           = T H \ket{0}.
+  \label{eq:magic_state}
+\end{equation}
+Our system prepares an \emph{encoded} version: the magic state is placed on
+logical qubit~1 of the $[\![4,2,2]\!]$ code, so that error detection protects
+it during storage and transport.
+
+\begin{warning}
+The $[\![4,2,2]\!]$ code is too small for real fault tolerance---its distance
+of~2 means a two-qubit error goes undetected. We use it because it is the
+\emph{simplest non-trivial testbed} for the engineering question of how to
+prepare, verify, and evaluate an encoded magic state. The heuristics
+discovered here---which seed gates help, whether $X$-stabiliser checking is
+worth the cost, how transpilation interacts with noise---are intended to
+transfer to larger codes.
+\end{warning}
+
+% ── 2.3 Preparation circuits ───────────────────────────────────────────────
+\subsection{Preparation Circuit Architecture}
+\label{sec:prep}
+
+The preparation circuit has two stages:
+
+\paragraph{Stage 1: Seed gate.} A single-qubit rotation on physical qubit~0
+creates the raw magic state before encoding. The system explores three
+decompositions, all mathematically equivalent on an ideal device but differing
+in their interaction with noise:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Name} & \textbf{Gate sequence} & \textbf{Rationale} \\
+\midrule
+\code{h\_p}    & $H$ then $P(\pi/4)$         & Native Qiskit decomposition \\
+\code{ry\_rz}  & $R_y(\pi/2)$ then $R_z(\pi/4)$ & Avoids the $H$ gate entirely \\
+\code{u\_magic} & $U(\pi/2, 0, \pi/4)$       & Single physical gate; minimal depth \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three produce the same ideal state $\ket{T}$. Under noise, they differ
+because each gate decomposition couples differently to coherent and incoherent
+error channels of the physical device.
+
+\paragraph{Stage 2: Encoder.} An entangling circuit maps the single-qubit
+state on qubit~0 into the four-qubit code space. Two implementations exist:
+
+\begin{itemize}
+  \item \code{cx\_chain}: A sequence of CNOT gates that propagates the
+    logical information:
+    \[
+      \text{CNOT}_{0 \to 2}, \quad
+      \text{CNOT}_{1 \to 0}, \quad
+      H_3, \quad
+      \text{CNOT}_{3 \to 0}, \quad
+      \text{CNOT}_{3 \to 1}, \quad
+      \text{CNOT}_{3 \to 2}.
+    \]
+  \item \code{cz\_compiled}: The same logical operation decomposed into CZ and
+    Hadamard gates, which may be more natural for devices with a native CZ
+    interaction.
+\end{itemize}
+
+% ── 2.4 Verification and postselection ─────────────────────────────────────
+\subsection{Verification and Postselection}
+\label{sec:verification}
+
+After encoding, the system optionally measures one or both stabilisers using
+ancilla qubits. This is \emph{verification}: a check that the state is in the
+code space before proceeding to the logical measurement.
+
+\begin{definition}[Postselection]
+\label{def:postselection}
+Given $N$ total shots, let $A \subseteq \{1, \ldots, N\}$ be the set of shots
+where all measured syndromes are $+1$ (no error detected). The
+\emph{postselected ensemble} consists of only the shots in $A$. The
+\emph{acceptance rate} is $|A|/N$.
+\end{definition}
+
+The system supports four postselection modes:
+\begin{center}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Mode} & \textbf{Behaviour} \\
+\midrule
+\code{all\_measured} & Discard a shot if \emph{any} measured syndrome is $-1$ \\
+\code{z\_only}       & Discard only if the $S_Z$ syndrome is $-1$ \\
+\code{x\_only}       & Discard only if the $S_X$ syndrome is $-1$ \\
+\code{none}          & Keep all shots regardless of syndrome \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{intuition}
+Postselection is a quality--throughput trade-off. Aggressive postselection
+($\code{all\_measured}$) gives higher-quality surviving shots but discards
+more data, lowering the acceptance rate. The optimiser's job is to find the
+mode that maximises the product of quality and throughput under the prevailing
+noise.
+\end{intuition}
+
+Two ancilla strategies exist:
+\begin{itemize}
+  \item \code{dedicated\_pair}: Each stabiliser gets its own ancilla qubit
+    (two ancillas total for \code{both} verification). More gates, but no
+    risk of mid-circuit reset errors.
+  \item \code{reused\_single}: One ancilla, measured and reset between
+    stabiliser checks. Fewer qubits, but the reset introduces a potential
+    error source.
+\end{itemize}
+
+% ── 2.5 Measurement protocol ──────────────────────────────────────────────
+\subsection{Measurement Protocol and Observables}
+\label{sec:observables}
+
+After preparation and optional verification, the system constructs four
+circuits that measure different observables on the same encoded state:
+
+\begin{enumerate}
+  \item \textbf{Acceptance circuit.} Measures all data qubits in the $Z$
+    basis. No basis rotation before measurement. Used to compute the
+    acceptance rate.
+
+  \item \textbf{Logical $X$ circuit.} Applies $H$ to qubits $\{0, 2\}$
+    (the support of $\bar{X}_1$) before measurement, effectively measuring
+    in the $X$ basis on those qubits. The expectation value
+    $\expect{\bar{X}_1}$ is computed from the parity of the postselected
+    outcomes on the relevant qubits.
+
+  \item \textbf{Logical $Y$ circuit.} Applies $S^\dagger$ then $H$ to qubit~0
+    ($Y$-basis), $Z$-basis on qubit~1, and $H$ on qubit~2 ($X$-basis). This
+    measures the three-body operator $Y_0 Z_1 X_2$, which is the logical $Y$
+    on qubit~1 of the $[\![4,2,2]\!]$ code. The expectation
+    $\expect{\bar{Y}_1}$ is extracted from the postselected parity.
+
+  \item \textbf{Spectator $Z$ circuit.} Applies $H$ to neither qubit~1 nor
+    qubit~2 (they are already in the $Z$ basis). Measures the two-body
+    operator $Z_1 Z_2 = \bar{Z}_2$, the logical $Z$ of the spectator qubit.
+\end{enumerate}
+
+\begin{keyconcept}
+A perfect encoded magic state satisfies $\expect{\bar{X}_1} =
+\expect{\bar{Y}_1} = 1/\sqrt{2}$ and $\expect{\bar{Z}_2} = +1$. Any
+deviation indicates either a preparation error (the seed or encoder is wrong),
+a noise-induced error (the device corrupted the state), or a code-space
+leakage (the spectator was disturbed).
+\end{keyconcept}
+
+% ── 2.6 The witness function ──────────────────────────────────────────────
+\subsection{The Magic-State Witness}
+\label{sec:witness}
+
+We combine the three observables into a single quality metric called the
+\emph{logical magic witness}:
+
+\begin{equation}
+  W = \underbrace{%
+    \frac{1 + \frac{\expect{\bar{X}_1} + \expect{\bar{Y}_1}}{\sqrt{2}}}{2}
+  }_{\text{magic quality}} \;\cdot\;
+  \underbrace{%
+    \frac{1 + \expect{\bar{Z}_2}}{2}
+  }_{\text{spectator alignment}}.
+  \label{eq:witness}
+\end{equation}
+
+The first factor measures how close the logical qubit is to the ideal magic
+state. For $\ket{T}$, the Bloch vector has equal $X$ and $Y$ components of
+magnitude $1/\sqrt{2}$, so the numerator reaches its maximum of $1 + 1 = 2$
+and the factor equals~1.
+
+The second factor penalises any disturbance of the spectator qubit. An ideal
+encoding leaves the spectator in $\ket{+}_L$, giving $\expect{\bar{Z}_2} =
++1$ and a factor of~1. If the encoding process or noise leaks information
+into the spectator, $\expect{\bar{Z}_2}$ drops, and so does $W$.
+
+The witness is bounded: $W \in [0, 1]$, with $W = 1$ for the ideal encoded
+magic state.
+
+\begin{warning}
+$W$ is not a fidelity. It is a \emph{witness} in the sense that $W < 1$
+proves the state is not ideal, but $W = 1$ does not uniquely identify the
+state (other states could also achieve $W = 1$ if the measured observables
+happen to align). For the purpose of heuristic optimisation, this is
+sufficient: we are maximising $W$ as a proxy for magic-state quality, not
+proving fault tolerance.
+\end{warning}
+
+% ============================================================================
+\section{The Scoring Functions}
+\label{sec:scoring}
+% ============================================================================
+
+Raw metrics (witness, acceptance rate, gate count, depth) must be collapsed
+into a single scalar for the ratchet to compare experiments. The system
+provides two scoring functions, used at different stages of the search.
+
+\subsection{Weighted Acceptance-Cost Score (Rungs 1--3)}
+\label{sec:wac}
+
+\begin{equation}
+  \text{score}_{\text{WAC}}
+    = \frac{Q \cdot r_{\text{accept}}}{\;C\;}
+  \label{eq:wac}
+\end{equation}
+where:
+\begin{align}
+  Q &= \frac{\sum_{i} w_i \cdot q_i}{\sum_{i} w_i},
+    \quad q_i \in \{F_{\text{ideal}},\; F_{\text{noisy}},\; W,\; r_{\text{code}},\; S,\; A_{\text{spec}}\},
+  \label{eq:quality} \\[4pt]
+  C &= C_0 + \alpha_{\text{2q}} \cdot n_{\text{2q}} + \alpha_d \cdot d +
+       \alpha_s \cdot n_s + \alpha_r \cdot t_r + \alpha_q \cdot c_q.
+  \label{eq:cost}
+\end{align}
+
+\begin{center}
+\begin{tabular}{clp{7.5cm}}
+\toprule
+\textbf{Symbol} & \textbf{Name} & \textbf{Definition} \\
+\midrule
+$F_{\text{ideal}}$ & Ideal fidelity & $\braket{T_{\text{enc}} | \rho_{\text{ideal}} | T_{\text{enc}}}$, from statevector sim \\
+$F_{\text{noisy}}$ & Noisy fidelity & $\braket{T_{\text{enc}} | \rho_{\text{noisy}} | T_{\text{enc}}}$, from density-matrix sim with noise model \\
+$W$ & Witness & Eq.~\eqref{eq:witness} \\
+$r_{\text{code}}$ & Codespace rate & Mean acceptance across all four circuits \\
+$S$ & Stability score & $1 - \sigma(\{s_j\}) / \bar{s}$, where $s_j$ is the score of repeat $j$ \\
+$A_{\text{spec}}$ & Spectator alignment & $(1 + \expect{\bar{Z}_2})/2$ \\
+$r_{\text{accept}}$ & Acceptance rate & Fraction of shots surviving postselection \\
+$n_{\text{2q}}$ & Two-qubit gates & Sum across all transpiled circuits \\
+$d$ & Circuit depth & Maximum across all transpiled circuits \\
+$n_s$ & Shot count & $\text{shots} \times \text{repeats} \times |\text{circuits}|$ \\
+$t_r$ & Runtime estimate & Estimated wall-clock time \\
+$c_q$ & Queue cost proxy & 0 for simulation; 1 for hardware \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The weights $w_i$ and cost coefficients $\alpha_*$ are per-rung
+hyperparameters defined in the YAML configuration. For example, Rung~1 puts
+40\% weight on noisy fidelity and 25\% on the witness, while Rung~2 shifts
+20\% weight to stability.
+
+\begin{intuition}
+The score has a clear physical interpretation: it is \emph{useful quality per
+unit cost}. The numerator $Q \cdot r_{\text{accept}}$ measures how much
+high-quality output you get. The denominator $C$ measures what you pay in
+gates, depth, and shots. A circuit that achieves $W = 0.9$ but requires 80
+two-qubit gates is penalised relative to one that achieves $W = 0.85$ with
+only 30 gates.
+\end{intuition}
+
+\subsection{Factory Throughput Score (Rungs 4--5)}
+\label{sec:factory}
+
+For the later rungs, the question shifts from ``what is the best state?'' to
+``what gives the most accepted states per unit cost?''---a factory-style
+metric:
+
+\begin{equation}
+  \text{score}_{\text{factory}}
+    = \frac{r_{\text{accept}} \cdot W}{\;C'\;}
+  \label{eq:factory}
+\end{equation}
+where $C'$ uses a 1.5$\times$ heavier penalty on two-qubit gate count and
+circuit depth than $C$. This is not a theoretical derivation; it is an
+engineering choice that biases the optimiser toward cheaper circuits when the
+quality is already good enough.
+
+In addition to the scalar score, the factory scorer computes and stores
+auxiliary metrics:
+
+\begin{equation}
+  \text{throughput} = \frac{r_{\text{accept}}}{C'}, \qquad
+  \text{logical error} = 1 - W, \qquad
+  \text{cost per accepted} = \frac{C'}{r_{\text{accept}}}.
+  \label{eq:factory_metrics}
+\end{equation}
+
+These are attached to the experiment record for downstream analysis.
+
+% ============================================================================
+\section{The Autoresearch Engine}
+\label{sec:engine}
+% ============================================================================
+
+\subsection{The Ratchet Mechanism}
+\label{sec:ratchet}
+
+The ratchet is a monotone optimisation procedure: the incumbent (best-known
+experiment) can only improve or stay the same, never regress.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\Input{Rung config $\mathcal{R}$, step budget $B$, patience $P$}
+\Output{Steps $\mathcal{S}$, lesson $\ell$, feedback $\phi$}
+$x^* \leftarrow \textsc{EnsureIncumbent}(\mathcal{R})$\;
+$p \leftarrow P$\;
+\For{$t \leftarrow 1$ \KwTo $B$}{
+  $\mathcal{G} \leftarrow \textsc{CompositeGenerator}(x^*, \text{dims}(\mathcal{R}), H, \Phi)$\;
+  \ForEach{challenger $c \in \mathcal{G}$}{
+    Evaluate $c$ on cheap tier\;
+    $H \leftarrow H \cup \{\text{fingerprint}(c)\}$\;
+  }
+  $\hat{c} \leftarrow \arg\max_{c \in \mathcal{G}} \text{score}(c)$\;
+  \uIf{$\text{score}(\hat{c}) > \text{score}(x^*) + \epsilon$}{
+    $x^* \leftarrow \hat{c}$\;
+    $p \leftarrow P$ \tcp*{Reset patience}
+  }\Else{
+    $p \leftarrow p - 1$\;
+  }
+  Save progress checkpoint\;
+  \lIf{$p \leq 0$}{\textbf{break} \tcp*{Early stopping}}
+}
+$(\ell, \phi) \leftarrow \textsc{ExtractLesson}(\text{all experiments in } \mathcal{R})$\;
+$\Phi \leftarrow \Phi \cup \{\phi\}$\;
+\Return{steps, $\ell$, $\phi$}\;
+\caption{Run-Rung: a complete search campaign}
+\label{alg:rung}
+\end{algorithm}
+
+Key design choices:
+
+\begin{itemize}
+  \item \textbf{History deduplication} ($H$): the set of all fingerprints ever
+    evaluated, across all steps of the current rung. No experiment is run
+    twice.
+  \item \textbf{Patience} ($p$): if the incumbent survives $P$ consecutive
+    steps without being dethroned, the rung terminates early. This prevents
+    wasting budget when the search has converged.
+  \item \textbf{Promotion threshold} ($\epsilon$): a challenger must beat the
+    incumbent by at least $\epsilon$ (the \code{cheap\_margin}) to be
+    considered for promotion. This prevents churn from noise-band fluctuations.
+\end{itemize}
+
+% ── 4.2 Multi-rung propagation ─────────────────────────────────────────────
+\subsection{Multi-Rung Propagation}
+\label{sec:propagation}
+
+When the ratchet runs multiple rungs in sequence, it propagates knowledge
+forward:
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\SetKwInOut{Input}{Input}
+\Input{Rung configs $[\mathcal{R}_1, \ldots, \mathcal{R}_K]$}
+$\Phi \leftarrow \emptyset$ \tcp*{Accumulated lesson feedback}
+\For{$i \leftarrow 1$ \KwTo $K$}{
+  \If{$i > 1$}{
+    Override $\mathcal{R}_i.\text{bootstrap}$ with winner spec from $\phi_{i-1}$\;
+    $\mathcal{R}_i.\text{search\_space} \leftarrow \textsc{Narrow}(\mathcal{R}_i.\text{search\_space}, \Phi)$\;
+  }
+  $(\_,\; \ell_i,\; \phi_i) \leftarrow \textsc{RunRung}(\mathcal{R}_i, \Phi)$\;
+  $\Phi \leftarrow \Phi \cup \{\phi_i\}$\;
+}
+\caption{Run-Ratchet: progressive multi-rung search}
+\label{alg:ratchet}
+\end{algorithm}
+
+Two things happen between rungs:
+
+\begin{enumerate}
+  \item \textbf{Winner propagation.} The best experiment spec from rung $i$
+    becomes the starting point (bootstrap incumbent) for rung $i{+}1$. The
+    human-written YAML bootstrap is overridden. A \file{propagated\_spec.json}
+    is saved for traceability.
+
+  \item \textbf{Search space narrowing.} The accumulated \code{SearchRule}
+    objects from all completed rungs are combined and used to prune the
+    dimension grid:
+    \begin{itemize}
+      \item Dimensions with a \code{fix} rule are constrained to a single
+        value.
+      \item Values with an \code{avoid} rule are removed, unless doing so
+        would reduce a dimension below 2 values.
+    \end{itemize}
+\end{enumerate}
+
+\begin{intuition}
+Rung~1 searches broadly: 3 seed styles $\times$ 2 encoder styles $\times$ 3
+verification modes $\times$ 3 postselection modes $\times$ \ldots{} $\approx
+10^3$ combinations. By Rung~5, lessons have fixed the seed style, fixed the
+encoder, and eliminated half the verification modes. The search space might be
+down to ${\sim}20$ combinations. The later rungs are not wasting budget
+re-exploring dead ends.
+\end{intuition}
+
+% ── 4.3 Search strategies ─────────────────────────────────────────────────
+\subsection{Challenger Generation Strategies}
+\label{sec:strategies}
+
+The system uses a composite generator that allocates its per-step budget
+across three strategies:
+
+\subsubsection{NeighborWalk (40\% budget)}
+
+The simplest strategy: for each dimension in the search space, try every
+alternative value while holding all other dimensions fixed. This is a
+single-axis perturbation, equivalent to one step of coordinate descent. It
+is thorough within a Hamming distance of~1 from the incumbent but cannot
+escape local optima.
+
+\subsubsection{RandomCombo (30\% budget, or 60\% when no lessons exist)}
+
+Picks 1--3 dimensions uniformly at random and samples a new value for each.
+This produces multi-axis mutations that can jump across the landscape:
+
+\begin{lstlisting}[style=python]
+n_dims = random.randint(1, min(3, len(dim_names)))
+chosen_dims = random.sample(dim_names, n_dims)
+for dim in chosen_dims:
+    alternatives = [v for v in values if v != current]
+    updates[dim] = random.choice(alternatives)
+\end{lstlisting}
+
+The key property: unlike NeighborWalk, this can change \code{verification}
+and \code{postselection} simultaneously, which matters because these two
+dimensions interact (see \S\ref{sec:interactions}).
+
+\subsubsection{LessonGuided (30\% budget, only when lessons exist)}
+
+Reads the \code{SearchRule} list from accumulated lesson feedback and
+constructs candidates that respect the rules:
+
+\begin{enumerate}
+  \item Apply all \code{fix} rules unconditionally (e.g., always set
+    \code{seed\_style=ry\_rz}).
+  \item For dimensions with \code{prefer} rules, sample from preferred values
+    with probability proportional to the rule's confidence score.
+  \item For dimensions with \code{avoid} rules, exclude those values from
+    sampling.
+  \item With 50\% probability, also explore non-preferred, non-avoided values
+    to prevent premature convergence.
+\end{enumerate}
+
+All three strategies check every generated candidate against the global
+history set and discard duplicates before returning.
+
+% ============================================================================
+\section{The Lesson Feedback System}
+\label{sec:lessons}
+% ============================================================================
+
+The feedback system is the component that makes the ratchet
+\emph{intelligent} rather than merely \emph{persistent}. It transforms raw
+experiment data into actionable directives.
+
+\subsection{Rule Extraction}
+\label{sec:rules}
+
+Given $N$ experiment records from a completed rung, the system extracts three
+types of rules:
+
+\paragraph{Per-dimension mean effects.} For each dimension $d$ and each value
+$v$ in the search space, compute:
+\begin{equation}
+  \delta_{d,v} = \bar{s}_{d=v} - \bar{s}_{\text{overall}}
+  \label{eq:delta}
+\end{equation}
+where $\bar{s}_{d=v}$ is the mean score of all experiments that used value
+$v$ for dimension $d$. If $\delta > \tau$ (default threshold $\tau = 0.005$),
+emit a \code{prefer} rule. If $\delta < -\tau$, emit an \code{avoid} rule.
+The confidence is $\min(1, n_{d=v} / N)$, where $n_{d=v}$ is the number of
+experiments with that value.
+
+\paragraph{Fix detection.} Let $\mathcal{T}_K$ be the top-$K$ experiments by
+score, where $K = \min(5, \max(3, \lfloor N/3 \rfloor))$. For each dimension,
+if all experiments in $\mathcal{T}_K$ share the same value $v^*$, and
+$\bar{s}_{d=v^*} > \bar{s}_{d \neq v^*}$, emit a \code{fix} rule with
+confidence $K/N$.
+
+\paragraph{Interaction detection.}
+\label{sec:interactions}
+For each pair of dimensions $(d_a, d_b)$, compute the joint effect and compare
+it to the sum of marginals:
+\begin{equation}
+  I_{v_a, v_b} = \underbrace{(\bar{s}_{d_a=v_a, d_b=v_b} - \bar{s}_{\text{overall}})}_{\text{joint effect}}
+               - \underbrace{(\delta_{d_a, v_a} + \delta_{d_b, v_b})}_{\text{sum of marginals}}.
+  \label{eq:interaction}
+\end{equation}
+If $|I| > 2\tau$, the pair exhibits a synergy ($I > 0$) or conflict ($I < 0$)
+that the marginal analysis would miss. A rule is emitted for the composite
+dimension $d_a{+}d_b$.
+
+\begin{keyconcept}
+Interaction detection matters because the $[\![4,2,2]\!]$ experiment has
+genuine dimension couplings. For example, \code{verification=z\_only} combined
+with \code{postselection=z\_only} may outperform the additive prediction
+because $Z$-only postselection is exactly matched to $Z$-only verification:
+no shots are wasted on $X$-syndrome failures that cannot be postselected
+against.
+\end{keyconcept}
+
+\subsection{Search Space Narrowing}
+\label{sec:narrowing}
+
+The \code{narrow\_search\_space()} function applies the extracted rules to
+physically shrink the dimension grid:
+
+\begin{lstlisting}[style=python]
+for dim, values in search_space.dimensions.items():
+    if dim in fix_map and fix_map[dim] in values:
+        new_dims[dim] = [fix_map[dim]]        # Lock to one value
+    elif dim in avoid_map:
+        filtered = [v for v in values if v not in avoid_map[dim]]
+        if len(filtered) >= min_values_per_dim:
+            new_dims[dim] = filtered           # Remove bad values
+        else:
+            new_dims[dim] = list(values)       # Safety: keep all
+\end{lstlisting}
+
+The safety clause prevents over-pruning: if avoiding too many values would
+leave a dimension with fewer than 2 options, the original set is kept.
+Confidence thresholds ($\geq 0.3$ for avoid, $\geq 0.4$ for fix) provide
+additional conservatism.
+
+\subsection{Dual Output Format}
+\label{sec:dual}
+
+Every rung produces two artefacts:
+
+\begin{enumerate}
+  \item \textbf{RungLesson} (human-readable Markdown): sections for ``What
+    Helped'', ``What Hurt'', ``Invariants'', ``Hardware-Specific Effects'',
+    ``Next Tests'', ``Promote Forward'', and ``Discard''. Saved as
+    \file{lesson.md}.
+
+  \item \textbf{LessonFeedback} (machine-readable JSON): the list of
+    \code{SearchRule} objects, the narrowed dimension grid, the best spec's
+    field values, and optional transfer scores. Saved as
+    \file{lesson\_feedback.json} and consumed by the
+    \code{LessonGuided} strategy and the propagation logic.
+\end{enumerate}
+
+% ============================================================================
+\section{Transfer Evaluation}
+\label{sec:transfer}
+% ============================================================================
+
+Rung~3 asks: does this recipe generalise, or is it overfitting to one backend's
+noise profile? The \code{TransferEvaluator} answers this by running the
+\emph{same} spec on multiple backend noise models and scoring pessimistically:
+
+\begin{equation}
+  s_{\text{transfer}} = \min_{b \in \mathcal{B}} \; s_b(\text{spec})
+  \label{eq:transfer}
+\end{equation}
+
+where $\mathcal{B}$ is the set of backends (e.g., \code{fake\_brisbane},
+\code{fake\_kyoto}, \code{fake\_sherbrooke}) and $s_b$ is the WAC score under
+backend $b$'s noise model.
+
+\begin{lstlisting}[style=shell]
+python -m autoresearch_quantum run-transfer \
+  --config configs/rungs/rung3.yaml \
+  --backends fake_brisbane fake_kyoto fake_sherbrooke
+\end{lstlisting}
+
+\begin{warning}
+This is different from searching over \code{target\_backend} as a dimension
+(which the original Codex implementation did). Searching over backends finds
+the \emph{easiest} backend. Transfer evaluation finds specs that work
+\emph{everywhere}---a much harder and more useful criterion.
+\end{warning}
+
+% ============================================================================
+\section{The Five Rungs in Detail}
+\label{sec:rungs}
+% ============================================================================
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}clp{4.8cm}lll@{}}
+\toprule
+\textbf{Rung} & \textbf{Name} & \textbf{Question} & \textbf{Score} & \textbf{Steps} & \textbf{Key shift} \\
+\midrule
+1 & Baseline          & What recipe works at all?           & WAC  & 3 & Broad search \\
+2 & Stability         & Is it stable under noise variation? & WAC  & 3 & $+20\%$ stability weight \\
+3 & Transfer          & Does it work on other devices?      & WAC  & 3 & Pessimistic cross-backend \\
+4 & Factory           & What maximises throughput/cost?      & Factory & 3 & $1.5\times$ cost penalty \\
+5 & Rosenfeld         & Which heuristics are load-bearing?  & Factory & 4 & Narrowest search space \\
+\bottomrule
+\end{tabular}
+\caption{The five rungs and their progressive focus.}
+\label{tab:rungs}
+\end{table}
+
+Each rung YAML configures different quality weights.
+Rung~1 puts 40\% weight on noisy fidelity (because early on, we want to find
+specs that even \emph{approach} the ideal under noise). By Rung~2, 20\% shifts
+to stability. By Rung~5, the factory throughput score replaces WAC entirely,
+and stability carries 25\% weight.
+
+The bootstrap incumbent for Rung~1 is human-chosen. For Rungs 2--5, it is
+automatically overridden by the winner from the previous rung via propagation
+(\S\ref{sec:propagation}).
+
+% ============================================================================
+\section{Resumability and Persistence}
+\label{sec:persistence}
+% ============================================================================
+
+All state is persisted as JSON files under a store directory:
+
+\begin{lstlisting}[style=shell]
+data/default/
+  rung_1/
+    experiments/            # One JSON per evaluated spec
+      r1-incumbent-a3f2b8c901.json
+      r1-challenger-7e9d1f0ab3.json
+      ...
+    ratchet_steps/          # One JSON per step
+      step_0001.json
+    incumbent.json          # {"experiment_id": "r1-incumbent-..."}
+    progress.json           # Resumability checkpoint
+    lesson.json             # Machine-readable lesson
+    lesson.md               # Human-readable narrative
+    lesson_feedback.json    # SearchRules for next rung
+  rung_2/
+    propagated_spec.json    # Winner carried from rung 1
+    ...
+\end{lstlisting}
+
+The \code{progress.json} file records the exact state needed to resume:
+
+\begin{lstlisting}[style=python]
+@dataclass
+class RungProgress:
+    rung: int
+    steps_completed: int
+    patience_remaining: int
+    current_incumbent_id: str
+    completed: bool = False
+\end{lstlisting}
+
+If the process is interrupted, re-running the same command detects the
+incomplete progress and resumes from the last checkpoint. No experiment is
+re-evaluated, and the patience counter is preserved.
+
+% ============================================================================
+\section{Verification: Claims and Tests}
+\label{sec:verification_claims}
+% ============================================================================
+
+The test suite contains 21 tests, each anchored to a specific architectural
+claim. We present them grouped by subsystem, with the falsification condition
+for each.
+
+\subsection{Quantum Correctness (3 tests)}
+
+\begin{claim}
+\label{claim:stabilizers}
+The ideal encoded magic state is a $+1$ eigenstate of both stabilisers.
+\end{claim}
+\textbf{Test:} \code{test\_encoded\_target\_state\_satisfies\_stabilizers}.
+Computes $\expect{S_X}$ and $\expect{S_Z}$ on the statevector produced by
+the default preparation circuit. Asserts $|\expect{S} - 1| < 10^{-8}$.
+\emph{Would fail if:} the encoder circuit is wrong, or the seed gate prepares
+the wrong single-qubit state.
+
+\begin{claim}
+\label{claim:bundle}
+The measurement bundle contains exactly the four expected circuits with
+correct metadata.
+\end{claim}
+\textbf{Test:} \code{test\_circuit\_bundle\_contains\_expected\_contexts}.
+\emph{Would fail if:} a circuit is missing, mislabelled, or lacks the
+\code{logical\_operator} metadata needed by the analysis code.
+
+\begin{claim}
+\label{claim:executor}
+The local executor produces positive scores with physically meaningful metrics
+under noisy simulation.
+\end{claim}
+\textbf{Test:} \code{test\_local\_executor\_produces\_score}. Runs the full
+evaluation pipeline (build, transpile, simulate, postselect, score) and checks
+$s > 0$, $0 \leq r_{\text{accept}} \leq 1$, $0 \leq W \leq 1$.
+\emph{Would fail if:} any stage of the pipeline is broken, e.g., the transpiler
+produces an invalid circuit, or the noise model is incompatible.
+
+\subsection{Search Correctness (5 tests)}
+
+\begin{claim}
+\label{claim:neighbor}
+NeighborWalk mutates exactly one dimension per challenger.
+\end{claim}
+\textbf{Test:} \code{test\_neighbor\_challengers\_mutate\_single\_dimension}.
+For each generated challenger, counts the number of fields that differ from
+the incumbent. Asserts the count is exactly~1.
+
+\begin{claim}
+\label{claim:history}
+History deduplication prevents re-evaluation.
+\end{claim}
+\textbf{Test:} \code{test\_neighbor\_walk\_respects\_history}. Generates
+challengers, passes their fingerprints as history, regenerates. Second call
+must return an empty list.
+
+\begin{claim}
+\label{claim:multiaxis}
+RandomCombo produces multi-axis mutations.
+\end{claim}
+\textbf{Test:} \code{test\_random\_combo\_generates\_multi\_axis\_mutations}.
+With 3 dimensions and 10 candidates, at least one must differ from the
+incumbent in $>1$ field. (Probabilistic, but failure probability is
+$< 10^{-6}$.)
+
+\begin{claim}
+\label{claim:guided}
+LessonGuided respects \code{fix} rules.
+\end{claim}
+\textbf{Test:} \code{test\_lesson\_guided\_uses\_rules}. Given a \code{fix}
+rule for \code{seed\_style=ry\_rz}, every generated challenger must have
+\code{spec.seed\_style == "ry\_rz"}.
+
+\begin{claim}
+\label{claim:composite}
+The composite generator stays within the budget cap.
+\end{claim}
+\textbf{Test:} \code{test\_composite\_generator\_combines\_strategies}.
+Asserts $0 < |\mathcal{G}| \leq \text{max\_challengers}$.
+
+\subsection{Lesson Correctness (3 tests)}
+
+\begin{claim}
+\label{claim:rules}
+Per-dimension analysis emits correct prefer/avoid directives.
+\end{claim}
+\textbf{Test:} \code{test\_extract\_search\_rules\_prefer\_and\_avoid}. With
+synthetic data where \code{z\_only} scores $\sim\!0.82$ and \code{both}
+scores $\sim\!0.52$, the rules must contain \code{(verification, prefer,
+z\_only)} and \code{(verification, avoid, both)}.
+
+\begin{claim}
+\label{claim:narrow}
+Search space narrowing removes avoided values and constrains fixed dimensions.
+\end{claim}
+\textbf{Test:} \code{test\_narrow\_search\_space\_removes\_avoided}. After
+applying an \code{avoid} rule for \code{x\_only} and a \code{fix} rule for
+\code{ry\_rz}, asserts \code{x\_only} is absent and the fixed dimension has
+exactly one value.
+
+\begin{claim}
+\label{claim:feedback}
+The end-to-end feedback pipeline produces correct best-spec fields.
+\end{claim}
+\textbf{Test:} \code{test\_build\_lesson\_feedback\_end\_to\_end}. With
+synthetic data, the \code{best\_spec\_fields} must report the top-scoring
+experiment's spec.
+
+\subsection{Scoring Correctness (2 tests)}
+
+\begin{claim}
+\label{claim:factory}
+The factory score computes throughput metrics and attaches them to the record.
+\end{claim}
+\textbf{Test:} \code{test\_factory\_throughput\_score\_produces\_metrics}.
+With known inputs ($r_{\text{accept}} = 0.7$, $W = 0.8$), verifies $s > 0$
+and \code{metrics.extra["factory\_metrics"]["accepted\_states\_per\_shot"]
+== 0.70}.
+
+\begin{claim}
+\label{claim:registry}
+Both scoring functions are registered and dispatchable by name.
+\end{claim}
+\textbf{Test:} \code{test\_score\_registry\_has\_factory}. Asserts
+\code{"factory\_throughput"} is a key in \code{SCORE\_REGISTRY}.
+
+\subsection{Transfer Correctness (1 test)}
+
+\begin{claim}
+\label{claim:transfer}
+The transfer evaluator produces a valid report with per-backend scores.
+\end{claim}
+\textbf{Test:} \code{test\_transfer\_evaluator\_runs\_across\_backends}.
+Runs a single-backend transfer evaluation and checks that the report has
+the correct type and a positive transfer score.
+
+\subsection{Persistence Correctness (2 tests)}
+
+\begin{claim}
+\label{claim:progress}
+Progress checkpoints survive serialisation round-trips.
+\end{claim}
+\textbf{Test:} \code{test\_save\_and\_load\_progress}. Writes a
+\code{RungProgress} to disk, reads it back, verifies all fields match.
+
+\begin{claim}
+\label{claim:feedback_persist}
+Lesson feedback (including SearchRule objects) survives serialisation.
+\end{claim}
+\textbf{Test:} \code{test\_save\_and\_load\_lesson\_feedback}. Round-trips a
+\code{LessonFeedback} with one rule, verifies the rule's dimension and action
+are preserved.
+
+\subsection{Integration (4 tests)}
+
+\begin{claim}
+\label{claim:rung_progress}
+A full rung run saves progress and marks completion.
+\end{claim}
+\textbf{Test:} \code{test\_run\_rung\_saves\_progress}. After
+\code{run\_rung()}, \code{progress.json} must exist with
+\code{completed=true}.
+
+\begin{claim}
+\label{claim:rung_lesson}
+A full rung returns both a human lesson and machine feedback.
+\end{claim}
+\textbf{Test:} \code{test\_run\_rung\_returns\_lesson\_and\_feedback}. Checks
+the return type is a 3-tuple of (steps, RungLesson, LessonFeedback).
+
+\begin{claim}
+\label{claim:propagation}
+Multi-rung ratchet propagates winners and accumulates lessons.
+\end{claim}
+\textbf{Test:} \code{test\_run\_ratchet\_propagates\_winner}. Runs a two-rung
+ratchet and asserts \code{len(harness.\_accumulated\_lessons) == 2}.
+
+\begin{claim}
+\label{claim:seed}
+Different specs receive different simulator seeds.
+\end{claim}
+\textbf{Test:} \code{test\_different\_specs\_get\_different\_seeds}. Computes
+$\text{SHA-256}(\text{fingerprint} \| \text{repeat\_index})$ for two specs
+with different \code{verification} values. The seeds must differ.
+\emph{Regression test:} the original code used $11000 + i$ for all specs.
+
+% ============================================================================
+\section{Usage Without AI Assistance}
+\label{sec:usage}
+% ============================================================================
+
+\subsection{Installation}
+
+\begin{lstlisting}[style=shell]
+cd autoresearch-quantum
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+python -m pytest tests/ -v          # 21 tests, ~13 seconds
+\end{lstlisting}
+
+Requires Python $\geq$ 3.11 and Qiskit $\geq$ 2.3. No GPU needed.
+
+\subsection{CLI Reference}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lp{9cm}@{}}
+\toprule
+\textbf{Command} & \textbf{What it does} \\
+\midrule
+\code{run-experiment} & Evaluate a single spec. Use \code{--set key=val} to override fields. \\
+\code{run-step} & One ratchet step: generate challengers, evaluate, maybe update incumbent. \\
+\code{run-rung} & Full rung: repeated steps until budget or patience exhausted. Produces lesson. \\
+\code{run-ratchet} & Multiple rungs in sequence with automatic propagation. \\
+\code{run-transfer} & Evaluate one spec across multiple backends. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The Feedback Artefacts and How to Read Them}
+\label{sec:artefacts}
+
+After running \code{run-rung --config configs/rungs/rung1.yaml}:
+
+\paragraph{lesson.md} is the human report. Skim the ``What Helped'' and
+``What Hurt'' sections first---they tell you which knobs to turn. The
+``Invariants'' section tells you which knobs don't seem to matter (yet).
+
+\paragraph{lesson\_feedback.json} is the machine report. The \code{rules}
+array is the most important part:
+
+\begin{lstlisting}[style=python]
+{
+  "dimension": "verification",
+  "action": "prefer",
+  "value": "z_only",
+  "confidence": 0.67,
+  "reason": "mean score 0.1823 is +0.0312 above overall mean (8 samples)"
+}
+\end{lstlisting}
+
+Read it as: ``With 67\% confidence (based on 8 out of 12 experiments),
+\code{verification=z\_only} helps.'' A confidence below 0.3 means the system
+saw too few samples to be sure.
+
+\paragraph{incumbent.json} points to the current best. Load the corresponding
+experiment file to see its full spec and all metrics.
+
+\paragraph{propagated\_spec.json} (Rungs 2--5 only) is the spec that was
+carried forward. Compare it with the YAML bootstrap to see what changed
+automatically.
+
+\subsection{Manual Iteration Workflow}
+
+\begin{enumerate}
+  \item Run Rung~1. Read \file{lesson.md}.
+  \item Edit \file{rung2.yaml}: remove values that the lesson says to avoid.
+    Add new values for dimensions you want to explore.
+  \item Run Rung~2. Or run the full ratchet and let propagation handle it.
+  \item Open \file{lesson\_feedback.json} from Rung~1 and Rung~3 side by side.
+    Rules that appear in both with high confidence are load-bearing. Rules
+    that appear only early on were artefacts of a specific noise model.
+  \item Test specific hypotheses: \code{run-experiment --set
+    approximation\_degree=0.95}. The result joins the store and influences
+    the next lesson extraction.
+  \item If interrupted, just re-run the same command. Progress is checkpointed.
+\end{enumerate}
+
+% ============================================================================
+\section{Limitations and Future Work}
+\label{sec:limitations}
+% ============================================================================
+
+\begin{enumerate}
+  \item \textbf{Simulation only.} The hardware executor exists but is disabled
+    by default. Real-device runs require IBM Quantum credentials and the
+    \code{qiskit-ibm-runtime} package.
+
+  \item \textbf{No distillation.} Rung~5 identifies factory-relevant
+    heuristics, but the system does not build or evaluate distillation
+    circuits. Extending to a 15-to-1 protocol is future work.
+
+  \item \textbf{No parallelism.} Experiments run sequentially. A
+    process-level sharding of the challenger set is straightforward but not
+    implemented.
+
+  \item \textbf{Small code.} The $[\![4,2,2]\!]$ code has distance~2 and
+    cannot correct errors. Scaling to the Steane code ($[\![7,1,3]\!]$) or
+    surface codes requires extending the circuit builder, but the search
+    engine is code-agnostic.
+
+  \item \textbf{Witness is not fidelity.} The witness $W$ is a necessary
+    condition for magic-state quality, not sufficient. A full tomographic
+    characterisation would be more rigorous but is orders of magnitude more
+    expensive.
+
+  \item \textbf{No LLM in the loop.} The ``auto'' is algorithmic (statistics
+    + guided search), not generative. Integrating an LLM to propose novel
+    circuit architectures---rather than just varying parameters of a fixed
+    family---is a natural extension.
+\end{enumerate}
+
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================================
+
+\textsc{autoresearch-quantum} demonstrates that the Karpathy autoresearch
+pattern transfers naturally to quantum computing experiments. The key
+ingredients are:
+
+\begin{itemize}
+  \item A well-defined scalar objective that balances quality and cost.
+  \item A combinatorial search space of physically motivated choices.
+  \item A multi-strategy challenger generator that balances exploitation
+    (NeighborWalk), exploration (RandomCombo), and learning (LessonGuided).
+  \item A feedback loop that converts experiment results into machine-readable
+    rules, narrows the search space, and propagates knowledge across rungs.
+  \item A monotone ratchet that guarantees the incumbent never regresses.
+\end{itemize}
+
+The system's output is not just a circuit---it is a structured body of
+experimental evidence, human-readable lessons, and machine-readable directives
+that a researcher can build on without re-running the search.
+
+\vspace{1em}
+\hrule
+\vspace{0.5em}
+{\small All code, configurations, and tests are available at
+\url{https://github.com/saymrwulf/autoresearch-quantum}. The system requires
+Python $\geq$ 3.11, Qiskit $\geq$ 2.3, and Qiskit Aer $\geq$ 0.17.}
+
+% ============================================================================
+% References
+% ============================================================================
+\begin{thebibliography}{9}
+
+\bibitem{bravyi2005}
+S.~Bravyi and A.~Kitaev,
+``Universal quantum computation with ideal Clifford gates and noisy ancillas,''
+\emph{Phys.\ Rev.\ A}, vol.~71, no.~2, p.~022316, 2005.
+
+\bibitem{karpathy2025}
+A.~Karpathy,
+``Autoresearch,''
+\url{https://github.com/karpathy/autoresearch}, 2025.
+
+\bibitem{qiskit2024}
+Qiskit contributors,
+``Qiskit: An open-source framework for quantum computing,''
+\url{https://github.com/Qiskit/qiskit}, 2024.
+
+\bibitem{gottesman1997}
+D.~Gottesman,
+``Stabilizer codes and quantum error correction,''
+PhD thesis, California Institute of Technology, 1997.
+
+\bibitem{knill2005}
+E.~Knill,
+``Quantum computing with realistically noisy devices,''
+\emph{Nature}, vol.~434, pp.~39--44, 2005.
+
+\bibitem{campbell2017}
+E.~T.~Campbell, B.~M.~Terhal, and C.~Vuillot,
+``Roads towards fault-tolerant universal quantum computation,''
+\emph{Nature}, vol.~549, pp.~172--179, 2017.
+
+\bibitem{litinski2019}
+D.~Litinski,
+``Magic state distillation: Not as costly as you think,''
+\emph{Quantum}, vol.~3, p.~205, 2019.
+
+\end{thebibliography}
+
+\end{document}

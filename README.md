@@ -16,38 +16,45 @@ The first built-in experiment family targets encoded magic-state preparation in 
 
 ```text
 autoresearch-quantum/
-├── configs/
-│   └── rungs/
-│       ├── rung1.yaml
-│       ├── rung2.yaml
-│       ├── rung3.yaml
-│       └── rung4.yaml
-├── src/
-│   └── autoresearch_quantum/
-│       ├── cli.py
-│       ├── config.py
-│       ├── models.py
-│       ├── codes/
-│       │   └── four_two_two.py
-│       ├── experiments/
-│       │   └── encoded_magic_state.py
-│       ├── execution/
-│       │   ├── analysis.py
-│       │   ├── backends.py
-│       │   ├── hardware.py
-│       │   ├── local.py
-│       │   └── transpile.py
-│       ├── lessons/
-│       │   └── extractor.py
-│       ├── persistence/
-│       │   └── store.py
-│       ├── ratchet/
-│       │   └── runner.py
-│       ├── scoring/
-│       │   └── score.py
-│       └── search/
-│           └── challengers.py
+├── configs/rungs/
+│   ├── rung1.yaml          Baseline: what recipe works?
+│   ├── rung2.yaml          Stability under noise variation
+│   ├── rung3.yaml          Transfer across backends
+│   ├── rung4.yaml          Factory throughput / cost
+│   └── rung5.yaml          Rosenfeld direction
+├── src/autoresearch_quantum/
+│   ├── cli.py              CLI entry point
+│   ├── config.py           YAML config loader
+│   ├── models.py           All data structures
+│   ├── codes/
+│   │   └── four_two_two.py [[4,2,2]] stabilisers, encoder, seed gates
+│   ├── experiments/
+│   │   └── encoded_magic_state.py  Circuit bundle builder
+│   ├── execution/
+│   │   ├── analysis.py     Postselection, witness, stability
+│   │   ├── backends.py     Backend resolution
+│   │   ├── hardware.py     IBM hardware executor
+│   │   ├── local.py        Aer noise simulation executor
+│   │   ├── transfer.py     Cross-backend transfer evaluator
+│   │   └── transpile.py    Transpilation utilities
+│   ├── lessons/
+│   │   ├── extractor.py    Human-readable lesson extraction
+│   │   └── feedback.py     Machine-readable rules + search narrowing
+│   ├── persistence/
+│   │   └── store.py        JSON file store with resumability
+│   ├── ratchet/
+│   │   └── runner.py       AutoresearchHarness orchestrator
+│   ├── scoring/
+│   │   └── score.py        WAC + factory throughput scorers
+│   └── search/
+│       ├── challengers.py  Neighbour generation with dedup
+│       └── strategies.py   NeighborWalk, RandomCombo, LessonGuided
+├── paper/
+│   ├── autoresearch_quantum.tex   Full technical paper (LaTeX)
+│   └── autoresearch_quantum.pdf   Compiled PDF (19 pages)
 ├── tests/
+│   └── test_harness.py     21 tests
+├── THE_STORY.md             Narrative documentation
 ├── pyproject.toml
 └── README.md
 ```
@@ -104,11 +111,11 @@ Expensive tier:
 
 - IBM Runtime execution through `SamplerV2`
 - only used when enabled and when cheap-tier promotion thresholds are met
-- isolated behind [`hardware.py`](/Users/oho/GitClone/CodexProjects/autoresearch-quantum/src/autoresearch_quantum/execution/hardware.py)
+- isolated behind [`hardware.py`](src/autoresearch_quantum/execution/hardware.py)
 
 ## Built-In `[[4,2,2]]` Experiment
 
-The built-in experiment prepares an encoded logical T-state on one logical qubit of the `[[4,2,2]]` code while keeping the spectator logical qubit in `|0⟩`. The code utilities live in [`four_two_two.py`](/Users/oho/GitClone/CodexProjects/autoresearch-quantum/src/autoresearch_quantum/codes/four_two_two.py).
+The built-in experiment prepares an encoded logical T-state on one logical qubit of the `[[4,2,2]]` code while keeping the spectator logical qubit in `|0⟩`. The code utilities live in [`four_two_two.py`](src/autoresearch_quantum/codes/four_two_two.py).
 
 The harness evaluates:
 

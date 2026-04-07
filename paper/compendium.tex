@@ -1,0 +1,1479 @@
+% ============================================================================
+% Companion Compendium — Encoded Magic-State Preparation
+% A gentle introduction to the physics, engineering, and optimisation
+% behind the autoresearch-quantum notebook series
+% ============================================================================
+\documentclass[11pt,a4paper,twoside]{report}
+
+% ── Typography & layout ─────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=2.5cm,inner=3cm,outer=2cm]{geometry}
+\usepackage{parskip}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\itshape\leftmark}
+\fancyhead[RO]{\small\itshape\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Mathematics ─────────────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{braket}
+\usepackage{mathtools}
+
+% ── Figures & tables ────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+
+% ── Coloured boxes ──────────────────────────────────────────────────────────
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+\definecolor{conceptbg}{HTML}{EEF2FF}
+\definecolor{conceptframe}{HTML}{4338CA}
+\definecolor{intuitionbg}{HTML}{ECFDF5}
+\definecolor{intuitionframe}{HTML}{059669}
+\definecolor{warningbg}{HTML}{FEF2F2}
+\definecolor{warningframe}{HTML}{DC2626}
+\definecolor{examplebg}{HTML}{FFFBEB}
+\definecolor{exampleframe}{HTML}{D97706}
+\definecolor{notebookbg}{HTML}{F5F0FF}
+\definecolor{notebookframe}{HTML}{7C4DFF}
+
+\newtcolorbox{concept}[1][]{%
+  colback=conceptbg, colframe=conceptframe,
+  fonttitle=\bfseries, title={Key Concept}, boxrule=0.6pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, #1}
+
+\newtcolorbox{intuition}[1][]{%
+  colback=intuitionbg, colframe=intuitionframe,
+  fonttitle=\bfseries, title={Intuition}, boxrule=0.6pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, #1}
+
+\newtcolorbox{warning}[1][]{%
+  colback=warningbg, colframe=warningframe,
+  fonttitle=\bfseries, title={Subtlety}, boxrule=0.6pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, #1}
+
+\newtcolorbox{example}[1][]{%
+  colback=examplebg, colframe=exampleframe,
+  fonttitle=\bfseries, title={Worked Example}, boxrule=0.6pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, #1}
+
+\newtcolorbox{notebook}[1][]{%
+  colback=notebookbg, colframe=notebookframe,
+  fonttitle=\bfseries, boxrule=0.6pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, #1}
+
+% ── Theorem environments ───────────────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+
+% ── Cross-references & links ──────────────────────────────────────────────
+\usepackage[colorlinks=true,linkcolor=conceptframe,citecolor=conceptframe,urlcolor=conceptframe]{hyperref}
+\usepackage{cleveref}
+
+% ── Shorthand ──────────────────────────────────────────────────────────────
+\newcommand{\expect}[1]{\langle #1 \rangle}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\ketT}{\ket{T}}
+
+% ── Title ──────────────────────────────────────────────────────────────────
+\title{%
+  \vspace{-1cm}
+  {\LARGE\bfseries Companion Compendium}\\[0.6em]
+  {\Large Encoded Magic-State Preparation\\
+  on the $[\![4,2,2]\!]$ Code}\\[1em]
+  {\large A Gentle Introduction to the Physics, Engineering,\\
+  and Optimisation Behind the Notebook Series}
+}
+\author{%
+  Companion to the \textsc{autoresearch-quantum} project\\[0.3em]
+  {\small\url{https://github.com/saymrwulf/autoresearch-quantum}}
+}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\vfill
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\small\itshape
+This compendium is the ``course textbook'' for the eight Jupyter notebooks
+in the \textsc{autoresearch-quantum} project. It is designed to be read
+before, during, or after working through the notebooks. Every concept
+exercised in the notebooks is explained here with the depth and context
+that a tutorial session cannot provide. No prior knowledge of quantum
+error correction is assumed; familiarity with linear algebra and
+complex numbers is helpful.
+\end{minipage}
+\end{center}
+\vspace{2cm}
+
+\tableofcontents
+
+% ========================================================================
+\chapter{Why This Project Exists}
+\label{ch:motivation}
+% ========================================================================
+
+\section{The Promise of Quantum Computing}
+
+A quantum computer manipulates quantum bits---\emph{qubits}---that can
+exist in superpositions of $\ket{0}$ and $\ket{1}$. Where a classical
+bit is either 0 or 1, a qubit is described by
+\begin{equation}
+  \ket{\psi} = \alpha\ket{0} + \beta\ket{1},
+  \qquad |\alpha|^2 + |\beta|^2 = 1,
+\end{equation}
+where $\alpha$ and $\beta$ are complex numbers called \emph{amplitudes}.
+The constraint $|\alpha|^2 + |\beta|^2 = 1$ ensures that the
+probabilities of measuring $\ket{0}$ or $\ket{1}$ sum to one.
+
+Multiple qubits can be \emph{entangled}, meaning the state of one
+depends on the state of the others in a way that has no classical
+analogue. Entanglement is the engine that gives quantum algorithms their
+power: Shor's algorithm for factoring, Grover's algorithm for search,
+and quantum simulation of molecules all exploit entanglement.
+
+\section{The Noise Problem}
+
+Today's quantum processors are \emph{noisy}. Every gate operation, every
+idle moment, and every measurement introduces errors. A typical
+two-qubit gate on current IBM hardware has an error rate of roughly 1\%,
+which sounds small but compounds rapidly: a circuit of 100 two-qubit
+gates has only about a 37\% chance of executing perfectly
+($0.99^{100} \approx 0.37$).
+
+This is the central engineering challenge of our era in quantum
+computing: the algorithms we want to run require thousands of gates, but
+the hardware can barely manage a few hundred before errors dominate.
+
+\section{Quantum Error Correction: The Path Forward}
+
+The solution is \emph{quantum error correction} (QEC). The idea is
+conceptually simple: spread the information of one \emph{logical qubit}
+across several \emph{physical qubits}, in such a way that errors can be
+detected and corrected without disturbing the encoded information.
+
+This is analogous to classical error-correcting codes (like the parity
+checks in your hard drive), but with a quantum twist: you cannot copy
+a qubit (the \emph{no-cloning theorem}), and measurement generally
+destroys the state. Quantum codes must work around both constraints.
+
+\section{The Role of Magic States}
+
+Even with error correction, there is a fundamental limitation.
+The \emph{Eastin--Knill theorem} states:
+
+\begin{concept}[title={The Eastin--Knill Theorem}]
+No quantum error-correcting code admits a universal set of
+\emph{transversal} gates. That is, you cannot implement every gate you
+need by simply applying the same operation to each physical qubit
+independently.
+\end{concept}
+
+Most codes can implement Clifford gates (Hadamard $H$, phase gate $S$,
+CNOT) transversally, but Cliffords alone are not enough. The
+\emph{Gottesman--Knill theorem} proves that any circuit built entirely
+from Clifford gates can be efficiently simulated on a classical
+computer---no quantum advantage.
+
+To break out of this trap, you need a \emph{non-Clifford resource}. The
+simplest and most common is the $T$~gate (a $\pi/8$ rotation). Rather
+than applying $T$ directly on the encoded qubits (which would not be
+transversal), the standard approach is:
+
+\begin{enumerate}
+  \item Prepare a special auxiliary state called the \textbf{magic state}
+        $\ketT$.
+  \item Consume $\ketT$ via \emph{gate teleportation} to apply the
+        $T$~gate to an encoded qubit.
+\end{enumerate}
+
+This compendium---and the entire \textsc{autoresearch-quantum}
+project---is about step~1: preparing magic states as reliably and
+efficiently as possible.
+
+\section{What This Project Does}
+
+The project builds a complete pipeline for encoded magic-state
+preparation on the $[\![4,2,2]\!]$ quantum error-detecting code:
+
+\begin{enumerate}
+  \item \textbf{Prepare} the magic state $\ketT$ using different gate
+        sequences (seed styles).
+  \item \textbf{Encode} it into the $[\![4,2,2]\!]$ code.
+  \item \textbf{Verify} the encoding using stabiliser measurements.
+  \item \textbf{Measure} the quality using a magic-state witness.
+  \item \textbf{Score} the experiment balancing quality, acceptance rate,
+        and cost.
+  \item \textbf{Optimise} the parameters automatically using a ratchet
+        that learns from its own results.
+\end{enumerate}
+
+The notebooks let you see, interact with, and modify every step.
+
+% ========================================================================
+\chapter{Qubits, Gates, and Circuits}
+\label{ch:qubits}
+% ========================================================================
+
+\section{The Qubit}
+
+A single qubit lives in a two-dimensional complex vector space
+$\HH = \mathbb{C}^2$, with the \emph{computational basis}
+$\{\ket{0}, \ket{1}\}$. Any pure state is
+\begin{equation}
+  \ket{\psi} = \alpha\ket{0} + \beta\ket{1}
+  = \begin{pmatrix} \alpha \\ \beta \end{pmatrix},
+  \qquad |\alpha|^2 + |\beta|^2 = 1.
+\end{equation}
+
+\subsection{The Bloch Sphere}
+
+Every single-qubit state can be visualised as a point on the
+\emph{Bloch sphere}. Writing
+$\ket{\psi} = \cos(\theta/2)\ket{0} + e^{i\phi}\sin(\theta/2)\ket{1}$,
+the state maps to the point $(\sin\theta\cos\phi,\;
+\sin\theta\sin\phi,\; \cos\theta)$ on a unit sphere.
+
+\begin{itemize}
+  \item $\ket{0}$ is at the north pole $(0,0,1)$.
+  \item $\ket{1}$ is at the south pole $(0,0,-1)$.
+  \item States on the equator ($\theta = \pi/2$) have equal probability
+        of being measured as $\ket{0}$ or $\ket{1}$.
+\end{itemize}
+
+\subsection{Global Phase}
+
+If you multiply the entire state by $e^{i\gamma}$, you get a new vector
+$e^{i\gamma}\ket{\psi}$ that \emph{cannot be distinguished from
+$\ket{\psi}$ by any measurement}. This factor is called the
+\emph{global phase}, and it is physically irrelevant.
+
+\begin{warning}
+Two states that differ only by a global phase are the same physical
+state. Their fidelity is 1.0, and they occupy the same point on the
+Bloch sphere. In the notebooks, you will see three seed styles that
+produce different-looking amplitude vectors but fidelity~1.0---this is
+why.
+\end{warning}
+
+\section{Quantum Gates}
+
+Quantum gates are \emph{unitary} transformations: operations that
+preserve the norm of the state vector. Every gate $U$ satisfies
+$U^\dagger U = I$.
+
+\subsection{Single-Qubit Gates}
+
+The most important single-qubit gates:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lll}
+\toprule
+\textbf{Gate} & \textbf{Matrix} & \textbf{What it does} \\
+\midrule
+Pauli $X$ & $\begin{psmallmatrix} 0&1\\1&0 \end{psmallmatrix}$ &
+  Bit-flip: $\ket{0}\leftrightarrow\ket{1}$ \\
+Pauli $Z$ & $\begin{psmallmatrix} 1&0\\0&-1 \end{psmallmatrix}$ &
+  Phase-flip: $\ket{1}\mapsto -\ket{1}$ \\
+Pauli $Y$ & $\begin{psmallmatrix} 0&-i\\i&0 \end{psmallmatrix}$ &
+  Both bit-flip and phase-flip: $Y = iXZ$ \\
+Hadamard $H$ & $\frac{1}{\sqrt{2}}\begin{psmallmatrix} 1&1\\1&-1 \end{psmallmatrix}$ &
+  Creates superposition: $\ket{0}\mapsto\ket{+}$ \\
+Phase $S$ & $\begin{psmallmatrix} 1&0\\0&i \end{psmallmatrix}$ &
+  Quarter-turn around $Z$ \\
+$T$ gate & $\begin{psmallmatrix} 1&0\\0&e^{i\pi/4} \end{psmallmatrix}$ &
+  Eighth-turn around $Z$: the key non-Clifford gate \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The gates $\{H, S, \text{CNOT}\}$ generate the \emph{Clifford group}.
+Adding $T$ promotes the set to a \emph{universal} gate set: any unitary
+can be approximated to arbitrary precision.
+
+\subsection{Two-Qubit Gates}
+
+The most important two-qubit gate is the \textbf{CNOT} (controlled-NOT,
+also called CX):
+\begin{equation}
+  \text{CNOT} = \ket{0}\bra{0}\otimes I + \ket{1}\bra{1}\otimes X
+  = \begin{pmatrix} 1&0&0&0\\ 0&1&0&0\\ 0&0&0&1\\ 0&0&1&0 \end{pmatrix}.
+\end{equation}
+It flips the target qubit if and only if the control qubit is
+$\ket{1}$. CNOT is the primary entangling gate and the dominant source
+of noise on current hardware.
+
+\begin{intuition}
+On IBM hardware, two-qubit gates have error rates 10--100$\times$
+higher than single-qubit gates. Minimising the two-qubit gate count is
+the single most impactful optimisation for circuit quality.
+\end{intuition}
+
+\section{Circuits}
+
+A quantum circuit is a sequence of gates applied to a register of
+qubits. Time flows left to right. Qubits are drawn as horizontal lines
+(``wires''). Each gate is a box or symbol on its wire(s).
+
+After the gates, you \emph{measure} some or all qubits, collapsing
+their superposition into classical bits. A \emph{shot} is one execution
+of the full circuit (preparation + gates + measurement).
+
+% ========================================================================
+\chapter{The Magic State}
+\label{ch:magic}
+% ========================================================================
+
+\section{Definition}
+
+The magic state is defined as:
+\begin{equation}
+  \ketT = \frac{\ket{0} + e^{i\pi/4}\ket{1}}{\sqrt{2}}.
+  \label{eq:tstate}
+\end{equation}
+
+\begin{concept}[title={T-state Properties}]
+\begin{itemize}[nosep]
+  \item Amplitudes: $\alpha = 1/\sqrt{2}$,
+        $\beta = e^{i\pi/4}/\sqrt{2} = (1+i)/(2)$.
+  \item Phase of $\ket{1}$ coefficient: $\pi/4 = 45^\circ$.
+  \item Bloch sphere: on the equator ($\expect{Z} = 0$), at $45^\circ$
+        between the $+X$ and $+Y$ axes.
+  \item $\expect{X} = \expect{Y} = 1/\sqrt{2} \approx 0.7071$.
+\end{itemize}
+\end{concept}
+
+\begin{warning}[title={$\pi/4$ vs.\ $\pi/8$}]
+The gate is called ``$T$'' and sometimes the ``$\pi/8$~gate'' because
+of Bloch-sphere conventions (the rotation \emph{angle} is $\pi/4$, but
+the \emph{half-angle} in the Bloch parametrisation is $\pi/8$). The
+\emph{state} has phase $\pi/4$. The notebooks use $\pi/4$ consistently.
+\end{warning}
+
+\section{Why Magic States Matter}
+
+As discussed in \cref{ch:motivation}, the Clifford group alone is
+classically simulable (Gottesman--Knill theorem). The $T$~gate breaks
+this barrier. But implementing $T$ transversally on most error-correcting
+codes is impossible (Eastin--Knill). The workaround:
+
+\begin{enumerate}
+  \item Prepare $\ketT$ in an auxiliary register.
+  \item Use \emph{gate teleportation}: a circuit of Clifford gates plus
+        a measurement that effectively applies $T$ to the target qubit,
+        consuming $\ketT$ in the process.
+  \item If the $\ketT$ is noisy, apply \emph{magic-state distillation}
+        to purify it (at the cost of more copies).
+\end{enumerate}
+
+Our project focuses on step~1: preparing the highest-quality $\ketT$
+we can, encoded in an error-detecting code, so that downstream
+distillation (if needed) starts from the best possible input.
+
+\section{Three Ways to Prepare $\ketT$}
+\label{sec:seeds}
+
+On a single qubit, the magic state can be prepared by several
+equivalent gate sequences. We call these \emph{seed styles}:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lll}
+\toprule
+\textbf{Style} & \textbf{Gates} & \textbf{Notes} \\
+\midrule
+\code{h\_p} & $H$ then $P(\pi/4)$ &
+  Most natural: Hadamard creates $\ket{+}$, phase gate adds $\pi/4$ \\
+\code{ry\_rz} & $R_Y(\pi/2)$ then $R_Z(\pi/4)$ &
+  Native on many hardware platforms \\
+\code{u\_magic} & $U(\pi/2, \pi/4, 0)$ &
+  Single parameterised gate \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three produce the same physical state (fidelity~$= 1.0$). The
+amplitude vectors may look different because they differ by a
+\emph{global phase}---which, as we discussed, is unphysical. The choice
+of seed style matters only when the circuit is \emph{transpiled} for a
+specific hardware backend, because different decompositions lead to
+different native-gate counts and thus different noise profiles.
+
+% ========================================================================
+\chapter{The $[\![4,2,2]\!]$ Error-Detecting Code}
+\label{ch:code}
+% ========================================================================
+
+\section{Why Encode?}
+
+A bare qubit has no protection against errors. If a cosmic ray or a
+stray photon flips a qubit, the computation is silently corrupted. We
+need a way to detect (and ideally correct) such errors.
+
+Classical error detection is straightforward: store redundant copies and
+compare them. But the \emph{no-cloning theorem} forbids copying an
+unknown quantum state:
+
+\begin{theorem}[No-Cloning]
+There is no unitary operation $U$ such that
+$U\ket{\psi}\ket{0} = \ket{\psi}\ket{\psi}$ for all $\ket{\psi}$.
+\end{theorem}
+
+Quantum error correction circumvents this by encoding information not
+in copies but in \emph{entanglement patterns}. The information is spread
+across multiple physical qubits in a way that individual errors can be
+detected without revealing the encoded data.
+
+\section{Code Parameters}
+
+The $[\![4,2,2]\!]$ code is the smallest quantum error-\emph{detecting}
+code. Its parameters mean:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{cl}
+\toprule
+\textbf{Parameter} & \textbf{Meaning} \\
+\midrule
+$n = 4$ & 4 physical qubits \\
+$k = 2$ & 2 logical qubits encoded \\
+$d = 2$ & Distance 2: detects any single-qubit error \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{concept}[title={Detection vs.\ Correction}]
+Distance $d = 2$ means the code can \emph{detect} any error affecting
+a single qubit, but it \emph{cannot correct} it. If an error is
+detected, the shot is discarded (postselection). A code needs
+distance $d \geq 3$ to correct single-qubit errors.
+\end{concept}
+
+For our purposes, detection is sufficient: we discard corrupted shots
+and keep only clean ones. This trades quantity for quality---a deliberate
+choice that the scoring formula captures.
+
+\section{The Codespace}
+
+The 4~physical qubits span a Hilbert space of dimension $2^4 = 16$.
+The $[\![4,2,2]\!]$ code selects a 4-dimensional subspace called the
+\emph{codespace} $\CC$. Within $\CC$, the two logical qubits can be in
+any state---giving us $2^2 = 4$ degrees of freedom, as expected.
+
+The codespace is defined by two \emph{stabiliser} operators:
+
+\begin{definition}[Stabilisers of the $[\![4,2,2]\!]$ code]
+\begin{equation}
+  S_X = X \otimes X \otimes X \otimes X = XXXX, \qquad
+  S_Z = Z \otimes Z \otimes Z \otimes Z = ZZZZ.
+\end{equation}
+A state $\ket{\psi}$ is in the codespace if and only if
+$S_X\ket{\psi} = +\ket{\psi}$ and $S_Z\ket{\psi} = +\ket{\psi}$.
+\end{definition}
+
+In other words, the codespace is the simultaneous $+1$ eigenspace of
+both stabilisers. Any state outside this eigenspace has been corrupted
+by an error.
+
+\subsection{Properties of the Stabilisers}
+
+Both stabilisers have important algebraic properties:
+
+\begin{enumerate}
+  \item \textbf{Squaring to identity:} $S_X^2 = I$ and $S_Z^2 = I$.
+        Since $S^2 = I$, the eigenvalues of $S$ can only be $\pm 1$.
+  \item \textbf{Commutation:} $[S_X, S_Z] = S_X S_Z - S_Z S_X = 0$.
+        The two stabilisers commute, so they can be measured
+        simultaneously (they share a common eigenbasis).
+  \item \textbf{Hermiticity:} Both are Hermitian ($S^\dagger = S$), so
+        they are valid observables.
+\end{enumerate}
+
+\section{Logical Operators}
+\label{sec:logical-ops}
+
+Within the codespace, we need operators that act on the \emph{logical}
+qubits without leaving the codespace. These must commute with both
+stabilisers.
+
+For our encoded magic state, the relevant logical operators are:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{llll}
+\toprule
+\textbf{Operator} & \textbf{Pauli string} & \textbf{Qubits acted on} & \textbf{Role} \\
+\midrule
+Logical $X$ & $IXIX$ & 0, 2 & $X$ on the magic logical qubit \\
+Logical $Y$ & $IXZY$ & 0, 1, 2 & $Y$ on the magic logical qubit \\
+Spectator $Z$ & $ZIZI$ & 1, 3 & $Z$ on the spectator logical qubit \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{intuition}
+Why does logical $Y$ act on 3 physical qubits? Because the logical
+information is \emph{distributed} across all physical qubits by the
+encoding. Logical operators must act on this distributed encoding.
+There is no single ``logical qubit wire'' to put a $Y$~gate on.
+\end{intuition}
+
+\subsection{The Two Logical Qubits}
+
+The $[\![4,2,2]\!]$ code encodes two logical qubits:
+\begin{enumerate}
+  \item \textbf{Logical qubit 0 (``the magic qubit''):} Prepared in the
+        magic state $\ketT$. We measure $\expect{X_L}$ and $\expect{Y_L}$
+        to assess its quality.
+  \item \textbf{Logical qubit 1 (``the spectator''):} Prepared in
+        $\ket{0}_L$. We measure $\expect{Z_{\text{spec}}}$ to confirm it
+        has not been disturbed. Ideally $\expect{Z_{\text{spec}}} = +1$.
+\end{enumerate}
+
+\section{The Encoder Circuit}
+\label{sec:encoder}
+
+The encoder is a unitary circuit that maps a product state on 4~qubits
+into an entangled codeword:
+\begin{equation}
+  \ket{\psi}_L = U_{\text{enc}} \bigl(\ket{T}_0 \otimes \ket{0}_1
+  \otimes \ket{0}_2 \otimes \ket{0}_3\bigr).
+\end{equation}
+
+The project implements two encoder styles:
+
+\paragraph{cx\_chain (5 CNOT gates, depth 7):} A cascade of CNOT gates
+that entangles all four qubits. The Hadamard on qubit~3 creates the
+necessary superposition for the second logical qubit (the spectator).
+This is the default encoder.
+
+\paragraph{cz\_compiled (5 CZ gates, depth 11):} Uses controlled-$Z$
+(CZ) gates instead of CNOT. CZ is the native two-qubit gate on some
+hardware platforms (e.g.\ Google's processors). Although the depth is
+higher, transpilation may produce fewer native gates on CZ-native
+hardware.
+
+Both encoders produce the same logical state (fidelity~$= 1.0$).
+The choice between them is an \emph{engineering} decision: which
+decomposition produces fewer errors after transpilation for a specific
+backend?
+
+\subsection{The Encoded State}
+
+After encoding with the default \code{cx\_chain}, the magic state has
+4~non-zero amplitudes out of 16 possible basis states:
+\begin{equation}
+  \ket{T}_L = \tfrac{1}{2}\ket{0000}
+  + \tfrac{e^{i\pi/4}}{2}\ket{0101}
+  + \tfrac{e^{i\pi/4}}{2}\ket{1010}
+  + \tfrac{1}{2}\ket{1111}.
+\end{equation}
+
+The pattern $\{0000, 0101, 1010, 1111\}$ is the codespace of the
+$[\![4,2,2]\!]$ code. Any measurement outcome outside these four
+bitstrings indicates an error.
+
+\section{Error Detection}
+\label{sec:errors}
+
+The power of the code lies in its ability to detect errors. Consider
+what happens when a single-qubit Pauli error acts on the encoded state:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Error type} & $\expect{XXXX}$ & $\expect{ZZZZ}$ &
+\textbf{Detected by} \\
+\midrule
+No error & $+1$ & $+1$ & --- \\
+$X$ on any qubit & $+1$ & $-1$ & $ZZZZ$ \\
+$Z$ on any qubit & $-1$ & $+1$ & $XXXX$ \\
+$Y$ on any qubit & $-1$ & $-1$ & Both \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{concept}[title={Why ZZZZ Detects X Errors}]
+$ZZZZ$ detects $X$~errors because $X$ and $Z$ \emph{anti-commute}:
+$XZ = -ZX$. When an $X$~error occurs on one qubit, it flips the sign
+of the $ZZZZ$ eigenvalue from $+1$ to $-1$.
+
+Similarly, $XXXX$ detects $Z$~errors. A $Y$~error ($Y = iXZ$) triggers
+both stabilisers.
+\end{concept}
+
+Every single-qubit error flips at least one stabiliser---this is the
+\emph{distance-2 guarantee}. A weight-2 error (two qubits affected
+simultaneously) could go undetected; that is the inherent limitation of
+distance~2.
+
+% ========================================================================
+\chapter{Measurement, Verification, and Postselection}
+\label{ch:measurement}
+% ========================================================================
+
+\section{The Measurement Problem}
+
+To check whether an error has occurred, we need to measure the
+stabilisers $\expect{XXXX}$ and $\expect{ZZZZ}$. But there is a
+problem: \emph{directly measuring the data qubits collapses the
+superposition and destroys the encoded state}.
+
+\section{Ancilla-Based Syndrome Extraction}
+
+The solution is to use \emph{ancilla qubits}---extra qubits that are
+entangled with the data qubits in a controlled way, then measured. The
+measurement outcome of the ancilla (called the \emph{syndrome}) tells us
+whether an error occurred, without revealing the actual data.
+
+\begin{intuition}
+Think of the ancilla as a thermometer: it reads the ``temperature'' of
+the data qubits (error or no error) without disturbing the patient
+(the encoded state). The syndrome bits are the thermometer's reading.
+\end{intuition}
+
+In the $[\![4,2,2]\!]$ code, we extract two syndrome bits:
+\begin{itemize}
+  \item Syndrome bit for $ZZZZ$: $+1$ (no $X$~error) or $-1$ ($X$~error
+        detected).
+  \item Syndrome bit for $XXXX$: $+1$ (no $Z$~error) or $-1$ ($Z$~error
+        detected).
+\end{itemize}
+
+We encode these as bits: 0 means $+1$ (no error), 1 means $-1$ (error
+detected). The syndrome string ``00'' means both stabilisers are
+satisfied---the state is in the codespace.
+
+\section{Postselection}
+\label{sec:postselection}
+
+\emph{Postselection} is the process of keeping only the shots where the
+syndrome indicates no error:
+
+\begin{definition}[Postselection]
+Given $N$ total shots, let $N_{\text{accept}}$ be the number with
+syndrome ``00''. The \emph{acceptance rate} is
+\begin{equation}
+  r_{\text{accept}} = \frac{N_{\text{accept}}}{N}.
+\end{equation}
+All other shots are discarded.
+\end{definition}
+
+\begin{concept}[title={The Cost of Postselection}]
+Postselection improves quality by filtering out corrupted shots. But it
+\emph{reduces the number of usable data points}. If the acceptance rate
+is 60\%, you need $\sim\!1.7\times$ as many total shots to get the same
+statistical power. The scoring formula accounts for this trade-off.
+\end{concept}
+
+On an ideal (noiseless) simulator, the acceptance rate is 100\%---every
+shot passes the syndrome check. On a noisy backend, some shots will
+trigger the syndrome flag and be discarded. The acceptance rate is
+therefore a direct measure of how much noise affects the experiment.
+
+\section{Witness Circuits}
+\label{sec:witness-circuits}
+
+After postselection, we need to measure the logical operators to assess
+the quality of the encoded magic state. This requires three separate
+circuits:
+
+\begin{enumerate}
+  \item \textbf{Logical $X$ circuit:} Measures $\expect{X_L}$ by
+        measuring qubits 0 and 2 in the $X$ basis.
+  \item \textbf{Logical $Y$ circuit:} Measures $\expect{Y_L}$ by
+        measuring qubits 0, 1, 2 in the appropriate bases.
+  \item \textbf{Spectator $Z$ circuit:} Measures $\expect{Z_{\text{spec}}}$
+        by measuring qubits 1 and 3 in the $Z$ basis.
+\end{enumerate}
+
+\begin{warning}[title={Why Three Separate Circuits?}]
+The three logical operators \emph{do not commute} with each other.
+Measuring one would disturb the quantum state in a way that invalidates
+the measurement of the others. Therefore, each operator requires its own
+copy of the experiment.
+\end{warning}
+
+% ========================================================================
+\chapter{The Magic-State Witness}
+\label{ch:witness}
+% ========================================================================
+
+\section{What Is a Witness?}
+
+A \emph{witness} is a number computed from measurement results that
+quantifies how close the prepared state is to the ideal target.
+Unlike fidelity (which requires full state tomography), the witness
+uses only a few expectation values and can be estimated efficiently.
+
+\section{The Formula}
+\label{sec:witness-formula}
+
+The magic-state witness for the $[\![4,2,2]\!]$ encoded $\ketT$ is:
+
+\begin{equation}
+  \boxed{
+  W = \underbrace{\frac{1 + \frac{\expect{X_L} + \expect{Y_L}}{\sqrt{2}}}{2}}_{\text{magic factor}}
+  \;\times\;
+  \underbrace{\frac{1 + \expect{Z_{\text{spec}}}}{2}}_{\text{spectator factor}}
+  }
+  \label{eq:witness}
+\end{equation}
+
+\subsection{The Magic Factor}
+
+The magic factor measures how well the encoded state matches the
+$T$-state character. For the ideal $\ketT$:
+\begin{itemize}
+  \item $\expect{X_L} = 1/\sqrt{2} \approx 0.7071$
+  \item $\expect{Y_L} = 1/\sqrt{2} \approx 0.7071$
+  \item Magic factor $= (1 + (0.7071 + 0.7071)/\sqrt{2})/2 = (1+1)/2 = 1.0$
+\end{itemize}
+
+\subsection{The Spectator Factor}
+
+The spectator factor checks that the second logical qubit (which should
+be in $\ket{0}_L$) has not been disturbed:
+\begin{itemize}
+  \item Ideal: $\expect{Z_{\text{spec}}} = +1$
+  \item Spectator factor $= (1+1)/2 = 1.0$
+\end{itemize}
+
+\subsection{Ideal Witness Value}
+
+For a perfect preparation:
+\begin{equation}
+  W_{\text{ideal}} = 1.0 \times 1.0 = 1.0.
+\end{equation}
+
+Any noise or error reduces $W$ below 1. The witness is deliberately
+\emph{sensitive}: even moderate noise produces a noticeable drop, making
+it a useful diagnostic.
+
+\begin{example}[title={Witness Under Noise}]
+Suppose noise reduces the logical expectations to $\expect{X_L} = 0.55$,
+$\expect{Y_L} = 0.50$, and $\expect{Z_{\text{spec}}} = 0.02$:
+\begin{align}
+  \text{Magic factor} &= \frac{1 + (0.55 + 0.50)/\sqrt{2}}{2}
+                       = \frac{1 + 0.742}{2} = 0.871, \\
+  \text{Spectator factor} &= \frac{1 + 0.02}{2} = 0.510, \\
+  W &= 0.871 \times 0.510 = 0.444.
+\end{align}
+The witness dropped from 1.0 to 0.44---a clear signal that quality has
+degraded significantly.
+\end{example}
+
+\section{Witness vs.\ Fidelity}
+
+\emph{Fidelity} measures the overlap between the actual state and the
+ideal state: $F = |\!\braket{T_L|\rho|T_L}\!|$. It requires full
+knowledge of the density matrix (state tomography), which is expensive.
+
+The \emph{witness} is a proxy that can be estimated from just three
+expectation values. It is not identical to fidelity, but it tracks
+quality faithfully and is operationally efficient.
+
+% ========================================================================
+\chapter{Noise and the Hardware Reality}
+\label{ch:noise}
+% ========================================================================
+
+\section{Sources of Noise}
+
+On real quantum hardware, errors arise from:
+
+\begin{enumerate}
+  \item \textbf{Gate errors:} Imperfect implementation of unitary
+        operations. Two-qubit gates are the worst offenders, with error
+        rates of $10^{-3}$ to $10^{-2}$.
+  \item \textbf{Readout errors:} Misidentification of $\ket{0}$ vs.\
+        $\ket{1}$ during measurement.
+  \item \textbf{Decoherence:} The qubit loses its quantum properties
+        over time ($T_1$ relaxation and $T_2$ dephasing).
+  \item \textbf{Cross-talk:} Operations on one qubit inadvertently
+        affect neighbouring qubits.
+\end{enumerate}
+
+\section{Noise Models and Simulators}
+
+Since access to real quantum hardware is limited and expensive, we use
+\emph{noise-model simulators}. The project uses Qiskit Aer's
+\code{AerSimulator} with noise models extracted from real IBM backends:
+
+\begin{itemize}
+  \item \code{fake\_brisbane}: A 127-qubit noise model mimicking the IBM
+        Brisbane processor, with realistic gate error rates, readout
+        errors, and $T_1$/$T_2$ times.
+\end{itemize}
+
+\begin{intuition}
+A noise-model simulator is like a flight simulator: it reproduces the
+conditions of the real thing (including turbulence) without the risk or
+cost of actual flight time. Results are statistically realistic, even
+though no quantum hardware is involved.
+\end{intuition}
+
+\section{Transpilation: From Logical to Physical}
+\label{sec:transpilation}
+
+The circuit you write in Qiskit uses abstract gates like $H$, CNOT, and
+$T$. But real hardware only supports a limited set of \emph{native gates}
+(e.g.\ IBM's basis: $\{$ECR, $R_Z$, $S_X$, $X$$\}$). The
+\emph{transpiler} converts your circuit into native gates:
+
+\begin{enumerate}
+  \item \textbf{Gate decomposition:} $H \to S_X \cdot R_Z(\pi/2)$, etc.
+  \item \textbf{Qubit routing:} Map logical qubits to physical qubits on
+        the hardware's connectivity graph. Insert SWAP gates where
+        needed.
+  \item \textbf{Optimisation:} Cancel redundant gates, merge rotations,
+        simplify sequences.
+\end{enumerate}
+
+Qiskit provides optimisation levels 0--3:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{cl}
+\toprule
+\textbf{Level} & \textbf{Description} \\
+\midrule
+0 & No optimisation (just decomposition and routing) \\
+1 & Light optimisation (default) \\
+2 & Medium: gate cancellation, commutation analysis \\
+3 & Heavy: resynthesis of 2-qubit blocks \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{warning}[title={Higher Is Not Always Better}]
+Aggressive optimisation reduces gate count but may reroute qubits onto
+noisier connections. The \emph{net} effect depends on the specific
+circuit and the specific hardware topology. The ratchet explores multiple
+optimisation levels to find the empirically best choice.
+\end{warning}
+
+\section{Cost Model}
+
+The \emph{cost} of a circuit quantifies its resource consumption. The
+project uses a weighted sum:
+\begin{equation}
+  \text{cost} = w_{\text{2q}} \cdot n_{\text{2q}}
+              + w_{\text{depth}} \cdot d + c_0,
+\end{equation}
+where $n_{\text{2q}}$ is the two-qubit gate count, $d$ is the circuit
+depth, and $c_0$ is a baseline cost. The weights come from the rung
+configuration and can be tuned.
+
+Two-qubit gates dominate: they are the noisiest operations, so
+$w_{\text{2q}}$ is typically the largest weight.
+
+% ========================================================================
+\chapter{Scoring: Putting It All Together}
+\label{ch:scoring}
+% ========================================================================
+
+An experiment produces several metrics: witness value, acceptance rate,
+circuit cost. We need a single number to compare experiments. The
+\emph{score} does this.
+
+\section{The Weighted Acceptance-Cost Score}
+
+For rungs 1--3, the score is:
+\begin{equation}
+  \boxed{
+    \text{score} = \frac{\text{quality} \times \text{acceptance\_rate}}{\text{cost}}
+  }
+  \label{eq:wac}
+\end{equation}
+where \emph{quality} is the magic-state witness $W$.
+
+\begin{intuition}
+The score answers: ``How much magic-state quality do I get per unit of
+resource spent, accounting for the shots I had to throw away?'' It
+naturally balances three competing concerns:
+\begin{itemize}[nosep]
+  \item \textbf{Quality:} higher witness is better.
+  \item \textbf{Acceptance:} fewer discarded shots is better.
+  \item \textbf{Cost:} simpler circuits are better (cheaper to run).
+\end{itemize}
+\end{intuition}
+
+\begin{example}[title={Score Tension}]
+A circuit that is $2\times$ better in quality but $3\times$ more
+expensive scores \emph{worse}:
+\[
+  \frac{2q \cdot a}{3c} = \frac{2}{3} \cdot \frac{qa}{c}
+  < \frac{qa}{c}.
+\]
+The score penalises complexity unless it delivers proportionally more
+quality.
+\end{example}
+
+\section{Factory Throughput Score}
+
+For rungs 4--5, the score shifts to a \emph{factory throughput} model:
+how many usable $T$-states per unit time can the circuit produce?
+
+\begin{equation}
+  \text{factory\_score} = \text{quality} \times \text{acceptance\_rate}
+  \times \frac{1}{\text{cost}^{3/2}}.
+\end{equation}
+
+The steeper cost penalty ($\text{cost}^{3/2}$ instead of $\text{cost}$)
+reflects the operational reality that in a $T$-state factory, cost
+compounds: each round of distillation consumes multiple copies.
+
+\section{Failure Modes}
+\label{sec:failures}
+
+Three things can go wrong, in increasing order of severity:
+
+\begin{enumerate}
+  \item \textbf{High cost:} The circuit is expensive but still works.
+        Fix: optimise transpilation settings.
+  \item \textbf{Poor acceptance:} Many shots are rejected. This wastes
+        compute but the accepted shots may still be good. Fix: reduce
+        noise exposure (fewer gates, better layout).
+  \item \textbf{Low magic witness:} The $T$-state character itself is
+        lost. Even the accepted shots produce poor quality. This is the
+        most severe failure---the experiment has failed its fundamental
+        purpose.
+\end{enumerate}
+
+% ========================================================================
+\chapter{The Ratchet: Learning by Doing}
+\label{ch:ratchet}
+% ========================================================================
+
+The ratchet is an automated optimisation system inspired by Andrej
+Karpathy's ``autoresearch'' philosophy: let the system run experiments,
+learn from the results, and improve its own configuration.
+
+\section{The Incumbent-Challenger Model}
+
+\begin{concept}[title={The Ratchet Guarantee}]
+The ratchet maintains an \emph{incumbent}---the best configuration found
+so far. In each step, it generates \emph{challengers} (alternative
+configurations) and evaluates them. A challenger replaces the incumbent
+\emph{only if it scores strictly higher}. The incumbent never gets
+worse.
+\end{concept}
+
+This monotonicity guarantee is the defining property of a ratchet (named
+after the mechanical device that turns in only one direction). It means
+the search is safe: you can stop at any time and your best result is
+preserved.
+
+\subsection{The Bootstrap Incumbent}
+
+The first incumbent is not random---it is a \emph{bootstrap
+incumbent}: a hand-picked, domain-expert guess at reasonable default
+parameters. This warm start means the ratchet begins from a sensible
+baseline rather than wasting time on obviously bad configurations.
+
+\section{Challenger Generation Strategies}
+\label{sec:strategies}
+
+The ratchet generates challengers using three strategies, each with a
+budget allocation:
+
+\subsection{NeighborWalk (40\% of budget)}
+
+Changes \emph{exactly one parameter} at a time, trying every alternative
+value for that parameter while keeping all others fixed.
+
+\begin{itemize}
+  \item \textbf{Strengths:} Systematic, guaranteed to find all
+        single-parameter improvements.
+  \item \textbf{Weakness:} Blind to \emph{parameter interactions}---it
+        cannot discover that changing two parameters simultaneously
+        produces a synergy that neither change alone would find.
+\end{itemize}
+
+\subsection{RandomCombo (30\% of budget)}
+
+Mutates \emph{multiple parameters simultaneously} at random.
+
+\begin{itemize}
+  \item \textbf{Strengths:} Can discover multi-parameter interactions
+        and escape local optima.
+  \item \textbf{Weakness:} Less systematic---relies on luck to find
+        good combinations.
+\end{itemize}
+
+\subsection{LessonGuided (30\% of budget)}
+
+Uses rules extracted from previous experiments to focus the search.
+
+\begin{itemize}
+  \item \textbf{Strengths:} Exploits accumulated knowledge, avoids
+        repeating known mistakes.
+  \item \textbf{Weakness:} Only available after lessons have been
+        extracted (not on the first rung).
+\end{itemize}
+
+\begin{intuition}
+Think of the three strategies as three employees searching a warehouse:
+NeighborWalk checks one shelf at a time (thorough but slow).
+RandomCombo wanders around trying random combinations (creative but
+unpredictable). LessonGuided reads the notes from previous searches
+first (efficient but needs prior experience).
+\end{intuition}
+
+\section{Ratchet Steps and Rungs}
+
+A \textbf{step} is one round of challenger generation and evaluation.
+In each step:
+\begin{enumerate}
+  \item Generate a batch of challengers using the three strategies.
+  \item Evaluate each challenger (run the experiment, compute the score).
+  \item If any challenger beats the incumbent, replace the incumbent.
+  \item Log the result (winner, margin, all scores).
+\end{enumerate}
+
+A \textbf{rung} is a sequence of steps, terminated when the
+\emph{patience} is exhausted:
+
+\begin{definition}[Patience]
+If $p$ consecutive steps fail to improve the incumbent, the rung stops.
+This prevents wasting compute once the nearby parameter space has been
+exhausted.
+\end{definition}
+
+\section{Lesson Extraction}
+\label{sec:lessons}
+
+After each rung, the system analyses all experimental results and
+extracts \emph{lessons}---rules about which parameter values help or
+hurt:
+
+\begin{enumerate}
+  \item \textbf{Fix rules:} ``Always use this value''---a parameter
+        value that consistently appears in top-scoring experiments.
+  \item \textbf{Avoid rules:} ``Never use this value''---a parameter
+        value that consistently appears in bottom-scoring experiments.
+\end{enumerate}
+
+Lessons are stored in two formats:
+\begin{itemize}
+  \item A human-readable \emph{narrative} (natural language summary).
+  \item Machine-readable \emph{SearchRules} (JSON) that the
+        LessonGuided strategy can consume directly.
+\end{itemize}
+
+\section{Search Space Narrowing}
+
+Lessons also \emph{narrow} the search space for subsequent rungs.
+If a value is consistently bad, it is removed from the allowed options.
+The dimension remains (the parameter still exists), but with fewer
+values to explore. A minimum number of values per dimension is preserved
+to prevent overfitting to noise.
+
+\section{Cross-Rung Propagation}
+
+The winning configuration from rung $N$ is \emph{propagated} as the
+bootstrap incumbent for rung $N+1$. This avoids cold-starting each rung
+and allows the system to build on previous gains.
+
+Combined with lesson extraction and space narrowing, this creates a
+\emph{progressive refinement} loop:
+\[
+  \text{Run} \to \text{Learn} \to \text{Narrow} \to \text{Propagate}
+  \to \text{Run} \to \cdots
+\]
+
+\section{Transfer Evaluation}
+
+A configuration optimised for one backend might be overfitted to that
+backend's specific noise profile. \emph{Transfer evaluation} tests the
+winning configuration on a different backend:
+
+\begin{itemize}
+  \item If the score is similar, the configuration is \emph{robust}.
+  \item If the score drops sharply, the configuration is
+        \emph{overfitted} to the source backend.
+\end{itemize}
+
+Transfer evaluation is a form of generalisation testing, analogous to
+validating a machine-learning model on a held-out dataset.
+
+% ========================================================================
+\chapter{The Five Rungs}
+\label{ch:rungs}
+% ========================================================================
+
+The system organises its search into five \emph{rungs}, each adding
+complexity:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{clll}
+\toprule
+\textbf{Rung} & \textbf{Focus} & \textbf{Backend} & \textbf{Scorer} \\
+\midrule
+1 & Core parameters (seed, encoder, verification) &
+    \code{fake\_brisbane} & WAC \\
+2 & Transpilation (opt level, layout, routing) &
+    \code{fake\_brisbane} & WAC \\
+3 & Fine-tuning (approximation degree, initial layout) &
+    \code{fake\_brisbane} & WAC \\
+4 & Hardware-aware optimisation &
+    \code{fake\_brisbane} & Factory \\
+5 & Transfer validation &
+    Different backend & Factory \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each rung inherits the best configuration from the previous one,
+narrows the search space based on lessons, and explores the next layer
+of parameters. The first three rungs use the Weighted Acceptance-Cost
+(WAC) score; rungs 4--5 switch to factory throughput to reflect
+production-oriented priorities.
+
+% ========================================================================
+\chapter{Putting It All Together: The Pipeline}
+\label{ch:pipeline}
+% ========================================================================
+
+Here is the complete flow from start to finish:
+
+\begin{enumerate}
+  \item \textbf{Configuration:} Load a rung YAML file specifying the
+        parameter space, scorer, backend, and budget.
+  \item \textbf{Preparation:} Build the quantum circuit from the
+        experiment spec (seed style $\to$ encoder $\to$ verification
+        circuits $\to$ witness circuits).
+  \item \textbf{Transpilation:} Compile the circuit for the target
+        backend at the specified optimisation level.
+  \item \textbf{Execution:} Run the circuit for $N$ shots on the
+        noise-model simulator.
+  \item \textbf{Analysis:}
+    \begin{enumerate}[nosep]
+      \item Parse syndrome bits to compute acceptance rate.
+      \item Parse data bits on accepted shots to compute
+            $\expect{X_L}$, $\expect{Y_L}$, $\expect{Z_{\text{spec}}}$.
+      \item Compute the witness $W$.
+      \item Compute the cost from circuit metrics.
+      \item Compute the score.
+    \end{enumerate}
+  \item \textbf{Ratchet:} Compare challenger scores to the incumbent.
+        Promote the winner. Extract lessons. Narrow the search space.
+        Propagate to the next rung.
+  \item \textbf{Transfer:} Test the final configuration on a different
+        backend.
+\end{enumerate}
+
+\begin{notebook}[title={Where to See This in the Notebooks}]
+\begin{itemize}[nosep]
+  \item \textbf{Plan A, Notebook 01:} Steps 1--5 in detail (one cell per
+        stage).
+  \item \textbf{Plan A, Notebook 02:} Step 5 in depth (scoring,
+        parameter sweeps).
+  \item \textbf{Plan A, Notebook 03:} Steps 6--7 (the ratchet in
+        action).
+  \item \textbf{Plan B (Spiral):} All steps in three passes of
+        increasing depth.
+  \item \textbf{Plan C, Track A:} Steps 1--3 (physics focus).
+  \item \textbf{Plan C, Track B:} Steps 3--5 (engineering focus).
+  \item \textbf{Plan C, Track C:} Steps 6--7 (optimisation focus).
+  \item \textbf{Plan C, Dashboard:} Interactive exploration of step 2
+        parameters.
+\end{itemize}
+\end{notebook}
+
+% ========================================================================
+\chapter{Glossary}
+\label{ch:glossary}
+% ========================================================================
+
+\begin{description}[style=nextline, leftmargin=3cm, labelwidth=2.8cm]
+
+\item[Acceptance rate]
+Fraction of shots that pass the syndrome check (postselection).
+
+\item[Ancilla]
+An auxiliary qubit used for syndrome extraction without disturbing the
+data qubits.
+
+\item[Bloch sphere]
+A geometric representation of a single-qubit state as a point on a unit
+sphere.
+
+\item[Bootstrap incumbent]
+The hand-picked initial configuration that the ratchet starts from.
+
+\item[Challenger]
+A candidate configuration that competes against the incumbent in a
+ratchet step.
+
+\item[Clifford group]
+The group of gates generated by $\{H, S, \text{CNOT}\}$. Classically
+simulable by the Gottesman--Knill theorem.
+
+\item[Codespace]
+The subspace of the physical Hilbert space where valid codewords live.
+Defined by the simultaneous $+1$ eigenspace of all stabilisers.
+
+\item[Cost]
+A scalar measuring the resource consumption of a circuit (dominated by
+two-qubit gate count).
+
+\item[Distance]
+The minimum weight of an undetectable error. For $[\![4,2,2]\!]$,
+$d = 2$: all weight-1 errors are detectable.
+
+\item[Eastin--Knill theorem]
+No quantum code admits a universal set of transversal gates.
+
+\item[Factory throughput]
+A scoring function that penalises cost more heavily, modelling a
+$T$-state production pipeline.
+
+\item[Fidelity]
+$F = |\!\braket{\psi|\rho|\psi}\!|$: the overlap between the actual
+state and the ideal target.
+
+\item[Global phase]
+A factor $e^{i\gamma}$ multiplying the entire state vector. Unphysical
+and unmeasurable.
+
+\item[Gottesman--Knill theorem]
+Clifford-only circuits can be efficiently simulated on a classical
+computer.
+
+\item[Incumbent]
+The best configuration found so far. Replaced only when a challenger
+scores strictly higher.
+
+\item[Lesson]
+A rule extracted from experimental results (``fix'' or ``avoid'' a
+parameter value).
+
+\item[Logical operator]
+An operator that acts on the encoded (logical) information within the
+codespace.
+
+\item[Magic state]
+The state $\ketT = (\ket{0} + e^{i\pi/4}\ket{1})/\sqrt{2}$, consumed
+to implement the $T$~gate via gate teleportation.
+
+\item[Narrowing]
+Removing poorly-performing parameter values from the search space
+between rungs.
+
+\item[No-cloning theorem]
+No unitary operation can copy an unknown quantum state.
+
+\item[Patience]
+The number of consecutive no-improvement steps before a rung terminates.
+
+\item[Postselection]
+Discarding shots where the syndrome indicates an error.
+
+\item[Ratchet]
+A monotonic optimiser: the incumbent never gets worse.
+
+\item[Rung]
+A stage of the optimisation pipeline with specific parameters to explore
+and a fixed budget.
+
+\item[Seed style]
+The gate sequence used to prepare the magic state on a single qubit
+before encoding.
+
+\item[Shot]
+One execution of the full circuit (preparation + measurement).
+
+\item[Stabiliser]
+A Pauli operator whose $+1$ eigenspace defines the codespace. For
+$[\![4,2,2]\!]$: $XXXX$ and $ZZZZ$.
+
+\item[Syndrome]
+The measurement outcome of the ancilla qubits, indicating whether an
+error has been detected.
+
+\item[Transpilation]
+Converting a logical circuit into native gates for a specific hardware
+backend.
+
+\item[Transfer evaluation]
+Testing a configuration on a different backend to check for overfitting.
+
+\item[Witness]
+A scalar quantity computed from expectation values that estimates the
+quality of the prepared magic state.
+
+\item[$[\![n,k,d]\!]$]
+Standard notation for a quantum code: $n$~physical qubits, $k$~logical
+qubits, distance~$d$.
+
+\end{description}
+
+% ========================================================================
+\appendix
+\chapter{Mathematical Background}
+\label{app:math}
+% ========================================================================
+
+This appendix collects the mathematical prerequisites. Skip it if you
+are comfortable with linear algebra over $\mathbb{C}$.
+
+\section{Complex Numbers and Amplitudes}
+
+A complex number $z = a + bi$ has a real part $a$, imaginary part $b$,
+magnitude $|z| = \sqrt{a^2 + b^2}$, and phase
+$\arg(z) = \arctan(b/a)$. In polar form: $z = |z| e^{i\theta}$.
+
+Quantum amplitudes are complex numbers. The probability of measuring a
+state is the squared magnitude of its amplitude: $p = |\alpha|^2$.
+
+\section{Tensor Products}
+
+The state space of $n$ qubits is the tensor product
+$(\mathbb{C}^2)^{\otimes n}$, with dimension $2^n$. For two qubits:
+\begin{equation}
+  \ket{\psi} \otimes \ket{\phi}
+  = \begin{pmatrix} \alpha_\psi \\ \beta_\psi \end{pmatrix}
+    \otimes
+    \begin{pmatrix} \alpha_\phi \\ \beta_\phi \end{pmatrix}
+  = \begin{pmatrix}
+      \alpha_\psi \alpha_\phi \\
+      \alpha_\psi \beta_\phi \\
+      \beta_\psi \alpha_\phi \\
+      \beta_\psi \beta_\phi
+    \end{pmatrix}.
+\end{equation}
+
+\section{Pauli Matrices}
+
+The four Pauli matrices form a basis for $2 \times 2$ Hermitian
+matrices:
+\begin{equation}
+  I = \begin{pmatrix} 1&0\\0&1 \end{pmatrix}, \quad
+  X = \begin{pmatrix} 0&1\\1&0 \end{pmatrix}, \quad
+  Y = \begin{pmatrix} 0&-i\\i&0 \end{pmatrix}, \quad
+  Z = \begin{pmatrix} 1&0\\0&-1 \end{pmatrix}.
+\end{equation}
+
+Key properties:
+\begin{itemize}
+  \item $X^2 = Y^2 = Z^2 = I$.
+  \item $XY = iZ$, $YZ = iX$, $ZX = iY$ (cyclic).
+  \item $XZ = -ZX$ (anti-commutation). This is why $ZZZZ$ detects
+        $X$~errors.
+\end{itemize}
+
+A Pauli string like $XXXX$ is the tensor product $X \otimes X \otimes X
+\otimes X$, a $16 \times 16$ matrix acting on 4~qubits.
+
+\section{Eigenvalues and Expectation Values}
+
+The \emph{expectation value} of an observable $O$ in state
+$\ket{\psi}$ is:
+\begin{equation}
+  \expect{O} = \bra{\psi} O \ket{\psi}.
+\end{equation}
+
+For a Pauli operator $P$ with $P^2 = I$, the eigenvalues are exactly
+$\pm 1$. A measurement of $P$ always returns $+1$ or $-1$. The
+expectation value is the average over many measurements.
+
+\chapter{Notebook--Compendium Cross-Reference}
+\label{app:xref}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{5.2cm}p{3.6cm}l}
+\toprule
+\textbf{Notebook Topic} & \textbf{Notebooks} & \textbf{Compendium} \\
+\midrule
+T-state definition \& Bloch sphere &
+  A/01~\S1--2, B~\S2.1, C/A~\S1--3 &
+  \cref{ch:magic} \\
+Why encode (no-cloning, distance) &
+  A/01~\S3, C/A~\S1 &
+  \cref{ch:code}~\S1--2 \\
+Stabilisers \& codespace &
+  A/01~\S6, B~\S2.3, C/A~\S4 &
+  \cref{ch:code}~\S3 \\
+Logical operators &
+  A/01~\S6, C/A~\S5 &
+  \cref{sec:logical-ops} \\
+Encoder circuits &
+  A/01~\S4--5, C/A~\S6 &
+  \cref{sec:encoder} \\
+Error detection &
+  A/01~\S7, C/A~\S8 &
+  \cref{sec:errors} \\
+Ancilla \& syndrome extraction &
+  A/01~\S9, C/A~\S7 &
+  \cref{ch:measurement}~\S2 \\
+Postselection &
+  A/01~\S11, A/02~\S3, B~\S2.5 &
+  \cref{sec:postselection} \\
+Noise models \& transpilation &
+  A/02~\S2, C/B~\S1--3 &
+  \cref{ch:noise} \\
+Magic witness formula &
+  A/02~\S5, B~\S2.7, C/A~\S9 &
+  \cref{ch:witness} \\
+Scoring formula &
+  A/02~\S7, B~\S2.9, C/B~\S8 &
+  \cref{ch:scoring} \\
+Factory throughput &
+  A/02~\S10, C/B~\S9 &
+  \cref{ch:scoring}~\S2 \\
+Failure modes &
+  A/02~\S9, C/B~\S7 &
+  \cref{sec:failures} \\
+Ratchet mechanism &
+  A/03~\S1--4, B~\S2.10--12, C/C~\S1--7 &
+  \cref{ch:ratchet}~\S1--3 \\
+Search strategies &
+  A/03~\S7, B~\S3.5, C/C~\S3--4 &
+  \cref{sec:strategies} \\
+Lesson extraction \& rules &
+  A/03~\S8, B~\S3.6, C/C~\S8--9 &
+  \cref{sec:lessons} \\
+Narrowing \& propagation &
+  B~\S3.7, C/C~\S10--11 &
+  \cref{ch:ratchet}~\S5--6 \\
+Transfer evaluation &
+  A/03~\S10, B~\S3.8, C/C~\S12 &
+  \cref{ch:ratchet}~\S7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}
+\rule{0.3\textwidth}{0.4pt}\\[0.5em]
+{\small End of compendium.}
+\end{center}
+
+\end{document}

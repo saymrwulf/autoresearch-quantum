@@ -59,11 +59,15 @@ autoresearch-quantum/
 │   │   └── 03_the_ratchet.ipynb
 │   ├── plan_b/              Spiral: 1 notebook, three passes
 │   │   └── spiral_notebook.ipynb
-│   └── plan_c/              Parallel tracks + dashboard
-│       ├── 00_dashboard.ipynb
-│       ├── track_a_physics.ipynb
-│       ├── track_b_engineering.ipynb
-│       └── track_c_search.ipynb
+│   ├── plan_c/              Parallel tracks + dashboard
+│   │   ├── 00_dashboard.ipynb
+│   │   ├── track_a_physics.ipynb
+│   │   ├── track_b_engineering.ipynb
+│   │   └── track_c_search.ipynb
+│   └── plan_d/              Three claim-driven experiments
+│       ├── experiment_1_protection.ipynb
+│       ├── experiment_2_noise.ipynb
+│       └── experiment_3_optimisation.ipynb
 ├── tests/                   107 tests
 │   ├── test_analysis.py
 │   ├── test_cli.py
@@ -169,7 +173,7 @@ If you want the CLI without installing editable mode, use `PYTHONPATH=src`.
 
 ## Jupyter Notebooks --- Learning Plans
 
-The `notebooks/` folder contains three independent learning experiences.
+The `notebooks/` folder contains four independent learning experiences.
 Each plan teaches the same material (encoded magic-state preparation, measurement, and the ratchet optimiser) through a different didactic lens.
 **No IBM account or API key is needed** --- everything runs locally with the Aer simulator.
 
@@ -222,6 +226,17 @@ One notebook, 78 cells. Each pass revisits the same system at a deeper level.
 
 Start with the dashboard for an overview, then dive into whichever track interests you.
 The three tracks are independent and can be read in any order.
+
+### Plan D --- Three Claim-Driven Experiments
+
+| # | File | Hypothesis |
+|---|------|-----------|
+| 1 | `plan_d/experiment_1_protection.ipynb` | The [[4,2,2]] code can protect a magic state: W=1.0, all errors detected |
+| 2 | `plan_d/experiment_2_noise.ipynb` | Noise degrades quality but parameter choice matters >2× |
+| 3 | `plan_d/experiment_3_optimisation.ipynb` | A ratchet can learn to optimise and its knowledge transfers |
+
+Each notebook follows: **Hypothesis → Claim → Experiment → Proof → Next Hypothesis**.
+The output of each experiment motivates the next.
 
 ### Troubleshooting
 

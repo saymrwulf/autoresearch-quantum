@@ -141,3 +141,38 @@ All three plans teach the same core material; the pedagogical approach differs.
 | 8. Rules | Distinguish 'fix' and 'avoid' search rules | Remember | MCQ |
 | 10. Narrowing | Explain what search space narrowing accomplishes | Understand | MCQ |
 | 12. Transfer | Diagnose overfitting from a transfer score drop | Evaluate | MCQ |
+
+---
+
+## Plan D — Three Claim-Driven Experiments (3 Notebooks)
+
+### Experiment 1: Can Quantum Error Detection Protect a Magic State?
+
+| Section | Learning Objective | Bloom | Assessment |
+|---------|-------------------|-------|------------|
+| 1. T-state | State the T-state phase (π/4) | Remember | MCQ |
+| 2. Encoding | Predict how many basis states have non-zero amplitude | Understand | Predict |
+| 3. Stabilisers | State what ⟨ZZZZ⟩ = +1 tells us (no X-type error) | Understand | MCQ |
+| 4. Error detection | Identify which stabiliser detects a Z error | Apply | MCQ |
+| 4. Error detection | Rank error types by stabilisers triggered | Analyse | Order |
+| 5. Witness | State the ideal witness value (W = 1.0) | Apply | MCQ |
+| 6. Postselection | Predict acceptance rate on ideal simulator | Understand | MCQ |
+
+### Experiment 2: How Much Magic Survives Real-World Noise?
+
+| Section | Learning Objective | Bloom | Assessment |
+|---------|-------------------|-------|------------|
+| 1. Noise | Predict how noise affects the syndrome distribution | Understand | Predict |
+| 2. Scoring | Explain the score tension between quality and acceptance | Analyse | MCQ |
+| 3. Parameter sweep | Evaluate which optimisation level gives best score | Evaluate | Reflect |
+
+### Experiment 3: Can a Machine Learn to Optimise?
+
+| Section | Learning Objective | Bloom | Assessment |
+|---------|-------------------|-------|------------|
+| 1. Ratchet | State the ratchet monotonicity guarantee | Understand | MCQ |
+| 2. Challengers | State that NeighborWalk changes exactly 1 parameter | Understand | MCQ |
+| 3. Ratchet step | Predict whether a challenger beats the incumbent | Understand | Predict |
+| 4. Lessons | Distinguish 'fix' and 'avoid' search rules | Remember | MCQ |
+| 4. Lessons | Evaluate the actionable insight in a lesson narrative | Evaluate | Reflect |
+| 5. Transfer | Diagnose overfitting from a transfer score drop | Evaluate | MCQ |

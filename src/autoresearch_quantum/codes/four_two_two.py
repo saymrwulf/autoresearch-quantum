@@ -16,7 +16,7 @@ STABILIZERS = {
 MEASUREMENT_OPERATORS = {
     "logical_x": {0: "X", 2: "X"},
     "logical_y": {0: "Y", 1: "Z", 2: "X"},
-    "spectator_z": {1: "Z", 2: "Z"},
+    "spectator_z": {1: "Z", 3: "Z"},
 }
 
 
@@ -30,7 +30,7 @@ def apply_magic_seed(circuit: QuantumCircuit, qubit: int, style: str) -> None:
         circuit.rz(pi / 4, qubit)
         return
     if style == "u_magic":
-        circuit.u(pi / 2, 0.0, pi / 4, qubit)
+        circuit.u(pi / 2, pi / 4, 0.0, qubit)
         return
     raise ValueError(f"Unsupported seed style: {style}")
 

@@ -52,8 +52,28 @@ autoresearch-quantum/
 ├── paper/
 │   ├── autoresearch_quantum.tex   Full technical paper (LaTeX)
 │   └── autoresearch_quantum.pdf   Compiled PDF (19 pages)
-├── tests/
-│   └── test_harness.py     21 tests
+├── notebooks/
+│   ├── plan_a/              Bottom-up: 3 sequential notebooks
+│   │   ├── 01_encoded_magic_state.ipynb
+│   │   ├── 02_measuring_progress.ipynb
+│   │   └── 03_the_ratchet.ipynb
+│   ├── plan_b/              Spiral: 1 notebook, three passes
+│   │   └── spiral_notebook.ipynb
+│   └── plan_c/              Parallel tracks + dashboard
+│       ├── 00_dashboard.ipynb
+│       ├── track_a_physics.ipynb
+│       ├── track_b_engineering.ipynb
+│       └── track_c_search.ipynb
+├── tests/                   107 tests
+│   ├── test_analysis.py
+│   ├── test_cli.py
+│   ├── test_codes.py
+│   ├── test_config.py
+│   ├── test_experiments.py
+│   ├── test_feedback.py
+│   ├── test_harness.py
+│   ├── test_persistence.py
+│   └── test_scoring.py
 ├── THE_STORY.md             Narrative documentation
 ├── pyproject.toml
 └── README.md
@@ -136,16 +156,81 @@ Create an isolated environment in the project root and install the package:
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-pip install -e '.[dev]'
+pip install -e '.[dev,notebooks]'
 ```
 
 For the optional IBM hardware path:
 
 ```bash
-pip install -e '.[hardware,dev]'
+pip install -e '.[hardware,dev,notebooks]'
 ```
 
 If you want the CLI without installing editable mode, use `PYTHONPATH=src`.
+
+## Jupyter Notebooks --- Learning Plans
+
+The `notebooks/` folder contains three independent learning experiences.
+Each plan teaches the same material (encoded magic-state preparation, measurement, and the ratchet optimiser) through a different didactic lens.
+**No IBM account or API key is needed** --- everything runs locally with the Aer simulator.
+
+### Quick start
+
+```bash
+# 1. Activate the virtual environment (if not already active)
+. .venv/bin/activate
+
+# 2. Install the project with notebook dependencies
+pip install -e '.[notebooks]'
+
+# 3. Start the Jupyter server
+jupyter lab --notebook-dir=notebooks
+```
+
+This opens JupyterLab in your browser (usually at http://localhost:8888).
+Navigate into any plan folder and open the first notebook.
+
+> **Alternative:** If you prefer the classic notebook interface, run
+> `jupyter notebook --notebook-dir=notebooks` instead.
+
+### Plan A --- Bottom-Up (3 sequential notebooks)
+
+| # | File | What you learn |
+|---|------|----------------|
+| 1 | `plan_a/01_encoded_magic_state.ipynb` | T-state, [[4,2,2]] encoder, stabilisers, error detection, postselection |
+| 2 | `plan_a/02_measuring_progress.ipynb` | Noise, logical operators, magic witness, scoring formula, parameter sweeps |
+| 3 | `plan_a/03_the_ratchet.ipynb` | Incumbent/challenger model, ratchet steps, lessons, cross-rung propagation |
+
+Start with notebook 01 and work through in order.
+Run each cell top-to-bottom (Shift+Enter).
+
+### Plan B --- Spiral (1 notebook, three passes)
+
+| File | What you learn |
+|------|----------------|
+| `plan_b/spiral_notebook.ipynb` | **Pass 1:** 5-min demo (black-box). **Pass 2:** Open the box (circuits, stabilisers, scoring). **Pass 3:** Make it your own (modify parameters, run experiments). |
+
+One notebook, 78 cells. Each pass revisits the same system at a deeper level.
+
+### Plan C --- Parallel Tracks (4 notebooks)
+
+| File | Focus |
+|------|-------|
+| `plan_c/00_dashboard.ipynb` | Interactive dashboard (ipywidgets) --- run experiments from dropdowns |
+| `plan_c/track_a_physics.ipynb` | Pure quantum mechanics: Eastin-Knill, Bloch sphere, stabiliser algebra |
+| `plan_c/track_b_engineering.ipynb` | Noise models, transpilation, cost model, failure modes |
+| `plan_c/track_c_search.ipynb` | Parameter space, search strategies, lesson extraction, cross-rung transfer |
+
+Start with the dashboard for an overview, then dive into whichever track interests you.
+The three tracks are independent and can be read in any order.
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `ModuleNotFoundError: autoresearch_quantum` | Run `pip install -e '.[notebooks]'` inside the activated `.venv` |
+| `ModuleNotFoundError: ipywidgets` | Run `pip install ipywidgets` --- needed for the Plan C dashboard |
+| Plots don't render | Make sure `%matplotlib inline` is in the first code cell (it already is) |
+| Kernel not found | In JupyterLab, select **Kernel > Change Kernel** and pick the `.venv` Python |
 
 ## How To Run
 

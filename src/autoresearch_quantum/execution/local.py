@@ -97,10 +97,6 @@ class LocalCheapExecutor:
                 ).result()
                 memory = result.get_memory(circuit)
                 records = local_memory_records(memory, [creg.name for creg in circuit.cregs])
-                operator = bundle.witness_circuits.get(context_name)
-                measurement_operator = None
-                if operator is not None:
-                    measurement_operator = bundle.witness_circuits[context_name].metadata.get("operator")
                 summary = summarize_context(
                     records,
                     syndrome_labels=list(circuit.metadata.get("syndrome_labels", [])),

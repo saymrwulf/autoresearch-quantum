@@ -13,10 +13,12 @@ from .ratchet.runner import AutoresearchHarness
 
 
 def _parse_override(value: str) -> tuple[str, Any]:
+    if "=" not in value:
+        raise ValueError(f"Override must be in key=value format, got: {value!r}")
     key, raw = value.split("=", 1)
     if raw.lower() in {"true", "false"}:
         return key, raw.lower() == "true"
-    if raw.isdigit():
+    if raw.isdigit() or (raw.startswith("-") and raw[1:].isdigit()):
         return key, int(raw)
     try:
         return key, float(raw)

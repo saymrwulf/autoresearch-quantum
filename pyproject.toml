@@ -9,7 +9,7 @@ description = "Karpathy-style autoresearch harness for encoded magic-state prepa
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
-  { name = "Codex" }
+  { name = "saymrwulf" }
 ]
 dependencies = [
   "qiskit>=2.3,<3",
@@ -20,6 +20,12 @@ dependencies = [
 [project.optional-dependencies]
 hardware = [
   "qiskit-ibm-runtime>=0.46,<0.47",
+]
+notebooks = [
+  "notebook>=7,<8",
+  "jupyterlab>=4,<5",
+  "matplotlib>=3.8",
+  "ipywidgets>=8,<9",
 ]
 dev = [
   "pytest>=9,<10",

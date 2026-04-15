@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
 import logging
-from dataclasses import asdict, replace
+from dataclasses import replace
 from typing import Any
 
 from ..execution.local import LocalCheapExecutor
@@ -19,7 +18,7 @@ from ..models import (
     generate_experiment_id,
 )
 from ..persistence.store import ResearchStore
-from ..search.challengers import GeneratedChallenger, mutation_summary
+from ..search.challengers import mutation_summary
 from ..search.strategies import CompositeGenerator, default_composite
 
 logger = logging.getLogger(__name__)

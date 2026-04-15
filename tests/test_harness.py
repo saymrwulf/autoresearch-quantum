@@ -5,9 +5,9 @@ from pathlib import Path
 from qiskit.quantum_info import Statevector
 
 from autoresearch_quantum.codes.four_two_two import STABILIZERS, encoded_magic_statevector
-from autoresearch_quantum.experiments.encoded_magic_state import build_circuit_bundle
 from autoresearch_quantum.execution.local import LocalCheapExecutor
 from autoresearch_quantum.execution.transfer import TransferEvaluator
+from autoresearch_quantum.experiments.encoded_magic_state import build_circuit_bundle
 from autoresearch_quantum.lessons.feedback import (
     build_lesson_feedback,
     extract_search_rules,
@@ -16,7 +16,6 @@ from autoresearch_quantum.lessons.feedback import (
 from autoresearch_quantum.models import (
     CostWeights,
     ExperimentSpec,
-    FactoryMetrics,
     HardwareConfig,
     LessonFeedback,
     QualityWeights,
@@ -30,14 +29,11 @@ from autoresearch_quantum.models import (
 )
 from autoresearch_quantum.persistence.store import ResearchStore
 from autoresearch_quantum.ratchet.runner import AutoresearchHarness
-from autoresearch_quantum.scoring.score import factory_throughput_score, score_metrics
+from autoresearch_quantum.scoring.score import factory_throughput_score
 from autoresearch_quantum.search.challengers import generate_neighbor_challengers
 from autoresearch_quantum.search.strategies import (
-    CompositeGenerator,
     LessonGuided,
-    NeighborWalk,
     RandomCombo,
-    StrategyWeight,
     default_composite,
 )
 

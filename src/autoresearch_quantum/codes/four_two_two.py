@@ -5,7 +5,6 @@ from math import pi
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import SparsePauliOp, Statevector
 
-
 DATA_QUBITS = 4
 MAGIC_PREP_QUBIT = 0
 SPECTATOR_LOGICAL_QUBIT = 1

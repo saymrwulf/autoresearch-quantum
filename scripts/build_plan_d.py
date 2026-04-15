@@ -657,7 +657,7 @@ justified."""))
     cells.append(code("""\
 from autoresearch_quantum.config import load_rung_config
 
-rung_config = load_rung_config("configs/rungs/rung1.yaml")
+rung_config = load_rung_config("../../configs/rungs/rung1.yaml")
 sweep_results = {}
 
 for opt in [1, 2, 3]:
@@ -842,7 +842,7 @@ The ratchet works like this:
 6. Repeat until patience runs out."""))
 
     cells.append(code("""\
-rung_config = load_rung_config("configs/rungs/rung1.yaml")
+rung_config = load_rung_config("../../configs/rungs/rung1.yaml")
 incumbent_spec = rung_config.bootstrap_incumbent
 print("Bootstrap incumbent (the starting point):")
 for field in ["seed_style", "encoder_style", "verification",

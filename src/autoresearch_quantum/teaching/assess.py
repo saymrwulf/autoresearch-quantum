@@ -1,7 +1,8 @@
 """Assessment primitives — widget-based, click-to-answer, visually distinct from code."""
 from __future__ import annotations
 
-from typing import Any, Sequence
+import warnings
+from typing import Any
 
 import ipywidgets as widgets
 from IPython.display import HTML, display
@@ -314,7 +315,6 @@ def order(
                 tie_map[item] = gi
         # For each position, check the student's item is valid
         # Items in the same tie group can swap positions with each other
-        used = list(correct_order)
         for i, s_item in enumerate(student):
             c_item = correct_order[i]
             if s_item == c_item:
@@ -413,29 +413,49 @@ def multiple_choice(tracker, qid, question, options, correct, answer="?",
     quiz(tracker, qid, question, opt_list, correct_idx, bloom, explanation)
 
 def predict(tracker, qid, question, your_prediction="?", bloom="understand"):
-    """Legacy wrapper — now a no-op since predict_choice replaces the pair."""
-    pass
+    """Legacy wrapper — use predict_choice() instead."""
+    warnings.warn(
+        "predict() is deprecated and does nothing. Use predict_choice() instead.",
+        DeprecationWarning, stacklevel=2,
+    )
 
 def check_prediction(tracker, qid, actual_value=None, was_correct=False, explanation=""):
-    """Legacy wrapper — no-op."""
-    pass
+    """Legacy wrapper — use predict_choice() instead."""
+    warnings.warn(
+        "check_prediction() is deprecated and does nothing. Use predict_choice() instead.",
+        DeprecationWarning, stacklevel=2,
+    )
 
 def numerical_answer(tracker, qid, question, answer=0.0, correct=0.0,
                      tolerance=0.01, bloom="apply", explanation=""):
-    """Legacy wrapper — converts to MCQ with the correct value and distractors."""
-    pass
+    """Legacy wrapper — use quiz() instead."""
+    warnings.warn(
+        "numerical_answer() is deprecated and does nothing. Use quiz() instead.",
+        DeprecationWarning, stacklevel=2,
+    )
 
 def free_response(tracker, qid, question, answer="?", bloom="evaluate", model_answer=""):
     """Legacy wrapper — redirects to reflect()."""
+    warnings.warn(
+        "free_response() is deprecated. Use reflect() directly.",
+        DeprecationWarning, stacklevel=2,
+    )
     reflect(tracker, qid, question, model_answer, bloom)
 
 def code_challenge(tracker, qid, description, test_passed=False,
                    bloom="apply", hint="", explanation=""):
-    """Legacy wrapper — no-op (code challenges stay as code cells)."""
-    pass
+    """Legacy wrapper — no replacement; use code cells with assertions."""
+    warnings.warn(
+        "code_challenge() is deprecated and does nothing. Use code cells with assertions.",
+        DeprecationWarning, stacklevel=2,
+    )
 
 def concept_sort(tracker, qid, instruction, student_order=None,
                  correct_order=None, bloom="analyze", explanation=""):
-    """Legacy wrapper — redirects to order()."""
+    """Legacy wrapper — use order() instead."""
+    warnings.warn(
+        "concept_sort() is deprecated. Use order() directly.",
+        DeprecationWarning, stacklevel=2,
+    )
     if correct_order:
         order(tracker, qid, instruction, list(correct_order), list(correct_order), bloom, explanation)

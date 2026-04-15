@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from autoresearch_quantum.lessons.feedback import (
-    build_lesson_feedback,
     extract_search_rules,
     narrow_search_space,
 )

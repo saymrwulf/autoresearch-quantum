@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, replace
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from hashlib import sha1
 from typing import Any
 
 
 def utc_timestamp() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def short_hash(payload: str, length: int = 10) -> str:
@@ -33,7 +33,7 @@ class ExperimentSpec:
     repeats: int = 3
     notes: str = ""
 
-    def with_updates(self, **changes: Any) -> "ExperimentSpec":
+    def with_updates(self, **changes: Any) -> ExperimentSpec:
         if "initial_layout" in changes and isinstance(changes["initial_layout"], list):
             changes["initial_layout"] = tuple(changes["initial_layout"])
         return replace(self, **changes)

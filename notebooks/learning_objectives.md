@@ -1,7 +1,7 @@
 # Learning Objectives — Per Notebook, Per Section
 
 Each objective has a Bloom level and a matched assessment type.
-All three plans teach the same core material; the pedagogical approach differs.
+All four plans teach the same core material; the pedagogical approach differs.
 
 ---
 

@@ -1,6 +1,33 @@
+# Python
 .venv/
 __pycache__/
 .pytest_cache/
 *.pyc
 *.egg-info/
+
+# Coverage
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+
+# Data / runtime artifacts
 data/
+
+# Notebook checkpoints and progress
+.ipynb_checkpoints/
+*_progress.json
+*_executed.ipynb
+
+# LaTeX auxiliary files
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+
+# Ruff
+.ruff_cache/

@@ -5,7 +5,6 @@ import pytest
 
 from autoresearch_quantum.models import EvaluationMetrics, QualityWeights, ScoreConfig
 from autoresearch_quantum.scoring.score import (
-    SCORE_REGISTRY,
     score_metrics,
     weighted_acceptance_cost,
 )

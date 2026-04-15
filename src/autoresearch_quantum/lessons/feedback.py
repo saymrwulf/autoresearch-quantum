@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from itertools import combinations
-from statistics import fmean, stdev
+from statistics import fmean
 from typing import Any
 
 from ..models import LessonFeedback, SearchRule, SearchSpaceConfig

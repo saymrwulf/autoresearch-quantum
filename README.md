@@ -46,12 +46,17 @@ autoresearch-quantum/
 │   │   └── runner.py       AutoresearchHarness orchestrator
 │   ├── scoring/
 │   │   └── score.py        WAC + factory throughput scorers
-│   └── search/
-│       ├── challengers.py  Neighbour generation with dedup
-│       └── strategies.py   NeighborWalk, RandomCombo, LessonGuided
+│   ├── search/
+│   │   ├── challengers.py  Neighbour generation with dedup
+│   │   └── strategies.py   NeighborWalk, RandomCombo, LessonGuided
+│   └── teaching/
+│       ├── assess.py       Widget-based quizzes, predictions, reflections
+│       └── tracker.py      LearningTracker — per-student progress tracking
 ├── paper/
 │   ├── autoresearch_quantum.tex   Full technical paper (LaTeX)
-│   └── autoresearch_quantum.pdf   Compiled PDF (19 pages)
+│   ├── autoresearch_quantum.pdf   Compiled PDF (19 pages)
+│   ├── compendium.tex             Companion textbook (LaTeX)
+│   └── compendium.pdf             Compiled PDF (36 pages)
 ├── notebooks/
 │   ├── plan_a/              Bottom-up: 3 sequential notebooks
 │   │   ├── 01_encoded_magic_state.ipynb

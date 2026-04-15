@@ -10,7 +10,6 @@ from typing import Any
 
 from IPython.display import HTML, display
 
-
 # Bloom's taxonomy levels, ordered by cognitive demand
 BLOOM_LEVELS = ["remember", "understand", "apply", "analyze", "evaluate", "create"]
 
@@ -89,35 +88,28 @@ class LearningTracker:
         self.attempts.append(attempt)
 
     # ── queries ─────────────────────────────────────────────────────────
-    def score_by_section(self) -> dict[str, dict[str, int]]:
-        """Returns {section: {correct: n, incorrect: n, total: n, pct: float}}."""
-        sections: dict[str, dict[str, int]] = defaultdict(lambda: {"correct": 0, "incorrect": 0, "total": 0})
-        seen: set[str] = set()
-        for a in self.attempts:
-            if a.correct is None:
-                continue
-            # only count the *latest* attempt for each question
-            key = a.question_id
-            if key in seen:
-                # remove previous count
-                continue
-            seen.add(key)
-        # recount with latest attempts only
+    def score_by_section(self) -> dict[str, dict[str, Any]]:
+        """Returns {section: {correct: n, incorrect: n, total: n, pct: float}}.
+
+        Only the latest attempt per question is counted.
+        """
         latest: dict[str, Attempt] = {}
         for a in self.attempts:
             if a.correct is not None:
                 latest[a.question_id] = a
-        sections_out: dict[str, dict[str, Any]] = defaultdict(lambda: {"correct": 0, "incorrect": 0, "total": 0})
+        sections: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {"correct": 0, "incorrect": 0, "total": 0},
+        )
         for a in latest.values():
-            s = sections_out[a.section]
+            s = sections[a.section]
             s["total"] += 1
             if a.correct:
                 s["correct"] += 1
             else:
                 s["incorrect"] += 1
-        for s in sections_out.values():
+        for s in sections.values():
             s["pct"] = round(100 * s["correct"] / s["total"], 1) if s["total"] else 0.0
-        return dict(sections_out)
+        return dict(sections)
 
     def score_by_bloom(self) -> dict[str, dict[str, Any]]:
         """Returns {bloom_level: {correct: n, total: n, pct: float}}."""

@@ -1,9 +1,8 @@
 """Tests for codes.four_two_two — all seed and encoder styles."""
 from __future__ import annotations
 
-from math import pi
-
 import pytest
+from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
 from autoresearch_quantum.codes.four_two_two import (
@@ -11,10 +10,7 @@ from autoresearch_quantum.codes.four_two_two import (
     apply_magic_seed,
     build_encoder,
     build_preparation_circuit,
-    encoded_magic_statevector,
 )
-from qiskit import QuantumCircuit
-
 
 # ── apply_magic_seed ─────────────────────────────────────────────────────────
 

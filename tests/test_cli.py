@@ -5,7 +5,6 @@ import pytest
 
 from autoresearch_quantum.cli import _parse_override, build_parser
 
-
 # ── _parse_override ──────────────────────────────────────────────────────────
 
 def test_parse_override_bool_true() -> None:

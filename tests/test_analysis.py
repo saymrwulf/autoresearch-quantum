@@ -14,7 +14,6 @@ from autoresearch_quantum.execution.analysis import (
     syndrome_outcomes,
 )
 
-
 # ── local_memory_records ─────────────────────────────────────────────────────
 
 def test_local_memory_records_splits_correctly() -> None:

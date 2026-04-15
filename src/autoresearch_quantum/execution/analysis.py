@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
 from math import sqrt
 from statistics import fmean, pstdev
-from typing import Any, Iterable
+from typing import Any
 
 
 def local_memory_records(memory: list[str], creg_names: list[str]) -> list[dict[str, str]]:

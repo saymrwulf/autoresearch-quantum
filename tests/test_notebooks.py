@@ -21,6 +21,9 @@ NOTEBOOK_DIR = Path("notebooks")
 
 ALL_NOTEBOOKS = sorted(NOTEBOOK_DIR.rglob("*.ipynb"))
 
+# Navigation-only notebooks (no code cells, no assessments)
+NAVIGATION_NOTEBOOKS = {NOTEBOOK_DIR / "00_START_HERE.ipynb"}
+
 # Execution timeout per cell (seconds) — noisy simulation cells can be slow
 CELL_TIMEOUT = 180
 
@@ -43,7 +46,9 @@ def test_notebook_valid_json(notebook_path):
 
 
 def test_notebook_has_code_cells(notebook_path):
-    """Every notebook has at least one code cell."""
+    """Every content notebook has at least one code cell."""
+    if notebook_path in NAVIGATION_NOTEBOOKS:
+        pytest.skip("navigation-only notebook")
     nb = nbformat.read(str(notebook_path), as_version=4)
     code_cells = [c for c in nb.cells if c.cell_type == "code"]
     assert len(code_cells) > 0, f"{notebook_path} has no code cells"
@@ -99,6 +104,38 @@ def test_notebook_quiz_cells_have_section(notebook_path):
         )
 
 
+def test_start_here_exists_and_links_all_plans():
+    """00_START_HERE.ipynb exists and links to all four plans."""
+    start = NOTEBOOK_DIR / "00_START_HERE.ipynb"
+    assert start.exists(), "00_START_HERE.ipynb not found"
+    nb = nbformat.read(str(start), as_version=4)
+    text = "\n".join("".join(c.source) for c in nb.cells)
+    assert "Plan A" in text
+    assert "Plan B" in text
+    assert "Plan C" in text
+    assert "Plan D" in text
+    # Must link to each plan's entry notebook
+    assert "plan_a/01_encoded_magic_state.ipynb" in text
+    assert "plan_b/spiral_notebook.ipynb" in text
+    assert "plan_c/00_dashboard.ipynb" in text
+    assert "plan_d/experiment_1_protection.ipynb" in text
+
+
+def test_every_notebook_has_navigation_footer():
+    """Every content notebook ends with a navigation cell linking back to Start Here."""
+    for nb_path in ALL_NOTEBOOKS:
+        if nb_path in NAVIGATION_NOTEBOOKS:
+            continue
+        nb = nbformat.read(str(nb_path), as_version=4)
+        # Check last 3 cells for a navigation markdown cell
+        tail_cells = nb.cells[-3:]
+        nav_found = any(
+            c.cell_type == "markdown" and "START_HERE" in "".join(c.source)
+            for c in tail_cells
+        )
+        assert nav_found, f"{nb_path} has no navigation footer linking to START_HERE"
+
+
 def test_learning_objectives_document_exists():
     """learning_objectives.md exists and covers all four plans."""
     obj_path = NOTEBOOK_DIR / "learning_objectives.md"
@@ -115,6 +152,8 @@ def test_every_notebook_has_assessments():
     """Every notebook has at least one assessment cell (quiz/predict/reflect/order)."""
     assessment_pattern = re.compile(r"(quiz|predict_choice|reflect|order)\s*\(")
     for nb_path in ALL_NOTEBOOKS:
+        if nb_path in NAVIGATION_NOTEBOOKS:
+            continue
         nb = nbformat.read(str(nb_path), as_version=4)
         has_assessment = False
         for cell in nb.cells:

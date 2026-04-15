@@ -116,13 +116,14 @@
 \begin{center}
 \begin{minipage}{0.85\textwidth}
 \small\itshape
-This compendium is the ``course textbook'' for the eight Jupyter notebooks
-in the \textsc{autoresearch-quantum} project. It is designed to be read
-before, during, or after working through the notebooks. Every concept
-exercised in the notebooks is explained here with the depth and context
-that a tutorial session cannot provide. No prior knowledge of quantum
-error correction is assumed; familiarity with linear algebra and
-complex numbers is helpful.
+This compendium is the ``course textbook'' for the twelve Jupyter notebooks
+(across four learning plans) in the \textsc{autoresearch-quantum} project.
+Start at \texttt{00\_START\_HERE.ipynb} to choose your plan. This document
+is designed to be read before, during, or after working through the
+notebooks. Every concept exercised in the notebooks is explained here
+with the depth and context that a tutorial session cannot provide. No
+prior knowledge of quantum error correction is assumed; familiarity with
+linear algebra and complex numbers is helpful.
 \end{minipage}
 \end{center}
 \vspace{2cm}
@@ -1419,13 +1420,13 @@ expectation value is the average over many measurements.
 \textbf{Notebook Topic} & \textbf{Notebooks} & \textbf{Compendium} \\
 \midrule
 T-state definition \& Bloch sphere &
-  A/01~\S1--2, B~\S2.1, C/A~\S1--3 &
+  A/01~\S1--2, B~\S2.1, C/A~\S1--3, D/1~\S1 &
   \cref{ch:magic} \\
 Why encode (no-cloning, distance) &
-  A/01~\S3, C/A~\S1 &
+  A/01~\S3, C/A~\S1, D/1~\S2 &
   \cref{ch:code}~\S1--2 \\
 Stabilisers \& codespace &
-  A/01~\S6, B~\S2.3, C/A~\S4 &
+  A/01~\S6, B~\S2.3, C/A~\S4, D/1~\S3 &
   \cref{ch:code}~\S3 \\
 Logical operators &
   A/01~\S6, C/A~\S5 &
@@ -1434,22 +1435,22 @@ Encoder circuits &
   A/01~\S4--5, C/A~\S6 &
   \cref{sec:encoder} \\
 Error detection &
-  A/01~\S7, C/A~\S8 &
+  A/01~\S7, C/A~\S8, D/1~\S4 &
   \cref{sec:errors} \\
 Ancilla \& syndrome extraction &
   A/01~\S9, C/A~\S7 &
   \cref{ch:measurement}~\S2 \\
 Postselection &
-  A/01~\S11, A/02~\S3, B~\S2.5 &
+  A/01~\S11, A/02~\S3, B~\S2.5, D/1~\S6 &
   \cref{sec:postselection} \\
 Noise models \& transpilation &
-  A/02~\S2, C/B~\S1--3 &
+  A/02~\S2, C/B~\S1--3, D/2~\S1 &
   \cref{ch:noise} \\
 Magic witness formula &
-  A/02~\S5, B~\S2.7, C/A~\S9 &
+  A/02~\S5, B~\S2.7, C/A~\S9, D/1~\S5 &
   \cref{ch:witness} \\
 Scoring formula &
-  A/02~\S7, B~\S2.9, C/B~\S8 &
+  A/02~\S7, B~\S2.9, C/B~\S8, D/2~\S2 &
   \cref{ch:scoring} \\
 Factory throughput &
   A/02~\S10, C/B~\S9 &
@@ -1458,20 +1459,23 @@ Failure modes &
   A/02~\S9, C/B~\S7 &
   \cref{sec:failures} \\
 Ratchet mechanism &
-  A/03~\S1--4, B~\S2.10--12, C/C~\S1--7 &
+  A/03~\S1--4, B~\S2.10--12, C/C~\S1--7, D/3~\S1--2 &
   \cref{ch:ratchet}~\S1--3 \\
 Search strategies &
-  A/03~\S7, B~\S3.5, C/C~\S3--4 &
+  A/03~\S7, B~\S3.5, C/C~\S3--4, D/3~\S2 &
   \cref{sec:strategies} \\
 Lesson extraction \& rules &
-  A/03~\S8, B~\S3.6, C/C~\S8--9 &
+  A/03~\S8, B~\S3.6, C/C~\S8--9, D/3~\S4 &
   \cref{sec:lessons} \\
 Narrowing \& propagation &
   B~\S3.7, C/C~\S10--11 &
   \cref{ch:ratchet}~\S5--6 \\
 Transfer evaluation &
-  A/03~\S10, B~\S3.8, C/C~\S12 &
+  A/03~\S10, B~\S3.8, C/C~\S12, D/3~\S5 &
   \cref{ch:ratchet}~\S7 \\
+Parameter sweep \& optimisation &
+  A/02~\S8, D/2~\S3, D/3~\S3 &
+  \cref{ch:scoring} \\
 \bottomrule
 \end{tabular}
 \end{center}

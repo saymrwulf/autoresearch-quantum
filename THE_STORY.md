@@ -398,7 +398,124 @@ and checks that their computed seeds are different.
 ---
 
 
-## Part 4: The file map
+## Part 4: The teaching layer
+
+The system is not only a research engine. It is also a course. Twelve Jupyter
+notebooks, organised into four independent learning plans, teach the same
+material through different pedagogical lenses. The teaching layer sits on top
+of the research engine and uses its real components (circuits, simulators,
+scorers, ratchet) as the substrate for interactive learning.
+
+### 4.1 Entry point: 00_START_HERE.ipynb
+
+Every learner begins at `notebooks/00_START_HERE.ipynb`. This notebook
+contains no code --- it is a plan selector. It describes the four plans, their
+target audiences, and links directly to each plan's first notebook. All
+content notebooks link back to Start Here.
+
+### 4.2 The four plans
+
+| Plan | Style | Notebooks | Target learner |
+|------|-------|-----------|----------------|
+| **A** | Bottom-up, sequential | 3 | Methodical learners who want foundations first |
+| **B** | Spiral, three passes | 1 (78 cells) | Time-pressed learners who want a demo first, theory later |
+| **C** | Parallel tracks + dashboard | 4 | Learners who want to choose their own path |
+| **D** | Hypothesis-driven experiments | 3 | Research-oriented learners who want to test claims |
+
+All four plans cover the same core concepts: T-state preparation, [[4,2,2]]
+encoding, stabiliser verification, postselection, scoring, the ratchet
+optimiser, lesson extraction, and cross-rung transfer.
+
+### 4.3 Interactive assessments (teaching/assess.py)
+
+Every content notebook includes interactive assessments built with ipywidgets:
+
+- **quiz()** --- multiple-choice questions with immediate feedback
+- **predict_choice()** --- "What do you think will happen?" before running code
+- **reflect()** --- open-ended reflections graded by keyword matching
+- **order()** --- drag-and-drop ordering exercises (e.g., rank error types)
+
+Each assessment is tagged with a Bloom's taxonomy level (remember, understand,
+apply, analyse, evaluate) and a topic. The full mapping of learning objectives
+to assessments is documented in `notebooks/learning_objectives.md`.
+
+### 4.4 Progress tracking (teaching/tracker.py)
+
+Each notebook creates a `LearningTracker` instance that records:
+
+- scores per assessment (correct/incorrect, attempt count)
+- Bloom's level distribution (how many of each level attempted/passed)
+- time spent per assessment
+- checkpoint summaries at natural breakpoints
+
+At the end of each notebook, `tracker.dashboard()` displays a visual summary,
+and `tracker.save()` persists progress to a JSON file. Progress files can be
+reset with `bash scripts/app.sh reset`.
+
+### 4.5 Navigation
+
+Every content notebook has a navigation footer with:
+
+- **Forward link** to the next notebook in the plan
+- **Back-link** to 00_START_HERE.ipynb
+- **Cross-plan suggestions** at terminal notebooks (e.g., "Finished Plan A?
+  Try Plan D for a different perspective.")
+
+### 4.6 Pedagogical quality enforcement
+
+The test suite includes `tests/test_pedagogy.py`, which enforces educational
+quality invariants across all content notebooks:
+
+- Minimum 200 words of prose per notebook
+- At least 25% of cells are markdown (not code-only)
+- Every notebook has a title header and multiple sections
+- At least 2 interactive assessments per notebook
+- At least 2 different assessment types per notebook (variety)
+- Bloom's taxonomy coverage: at least 2 levels per notebook
+- Checkpoint summaries present when a notebook has 4+ assessments
+- LearningTracker initialisation, dashboard(), and save() in every notebook
+- Key Insight callouts in longer notebooks (5+ sections)
+- All four plans collectively cover core concepts (stabiliser, magic, witness, ratchet)
+
+These tests catch pedagogical regressions the same way unit tests catch code
+regressions. Adding a new notebook or modifying an existing one will fail CI
+if it violates these invariants.
+
+
+---
+
+
+## Part 5: The consumer experience (app.sh)
+
+The project includes a lifecycle manager (`scripts/app.sh`) that handles the
+entire consumer experience from first clone to running notebooks:
+
+```bash
+bash scripts/app.sh bootstrap     # venv, pip install, kernel registration, import check
+bash scripts/app.sh start         # launch JupyterLab, open 00_START_HERE.ipynb
+bash scripts/app.sh stop          # graceful shutdown
+bash scripts/app.sh status        # venv, server, notebook, progress summary
+bash scripts/app.sh validate      # ruff + mypy + full test suite
+bash scripts/app.sh validate --quick  # lint + type check + unit tests only
+bash scripts/app.sh logs          # tail JupyterLab output
+bash scripts/app.sh reset         # delete learner progress files
+```
+
+Bootstrap checks Python >= 3.11, creates the venv, installs the package with
+dev and notebook dependencies, registers a Jupyter kernel, and verifies that
+core imports succeed. Start finds a free port (8888-8899), launches JupyterLab
+in the background with PID tracking, and opens the browser directly to
+`00_START_HERE.ipynb`.
+
+Validation runs the full quality pipeline: ruff linting, mypy strict type
+checking, and the pytest suite (335 tests, excluding browser UX by default).
+The `--quick` flag runs only lint, type check, and unit tests.
+
+
+---
+
+
+## Part 6: The file map
 
 ```
 autoresearch-quantum/
@@ -450,8 +567,42 @@ autoresearch-quantum/
       store.py             JSON file store: experiments, steps, progress,
                            lessons, feedback, propagated specs
 
-  tests/
-    test_harness.py        21 tests covering every subsystem
+    teaching/
+      assess.py            Widget-based quizzes, predictions, reflections
+      tracker.py           LearningTracker: per-student progress tracking
+
+  notebooks/
+    00_START_HERE.ipynb    Central entry point: plan selector
+    learning_objectives.md Per-notebook, per-section learning objectives
+    plan_a/                Bottom-up: 3 sequential notebooks
+    plan_b/                Spiral: 1 notebook, 3 passes
+    plan_c/                Parallel tracks + dashboard: 4 notebooks
+    plan_d/                Hypothesis-driven: 3 experiments
+
+  paper/
+    autoresearch_quantum.tex   Technical paper (LaTeX, 19 pages)
+    compendium.tex             Companion textbook (LaTeX, 36 pages)
+
+  scripts/
+    app.sh                 Consumer lifecycle manager (bootstrap/start/stop/validate)
+
+  tests/                   335 tests across 13 files
+    test_analysis.py       Postselection & witness
+    test_browser_ux.py     Playwright end-to-end UX
+    test_cli.py            CLI subcommands
+    test_codes.py          [[4,2,2]] code correctness
+    test_config.py         YAML config loading
+    test_experiments.py    Circuit bundle construction
+    test_feedback.py       Lesson extraction & search rules
+    test_harness.py        Full ratchet integration
+    test_notebooks.py      Notebook execution & structure
+    test_pedagogy.py       Pedagogical quality invariants (130 tests)
+    test_persistence.py    JSON store round-trips
+    test_scoring.py        Score functions
+    test_teaching.py       Assessment widgets & tracker
+
+  .github/workflows/ci.yml  CI: lint, type check, test matrix, notebook execution
+  .pre-commit-config.yaml   Ruff, mypy, nbstripout, hygiene hooks
 
   data/                    Output directory (created at runtime)
     default/
@@ -472,12 +623,12 @@ autoresearch-quantum/
 ---
 
 
-## Part 5: How to use it without Claude
+## Part 7: How to use it without Claude
 
 You do not need an AI to run this system or to make progress with its
 output. Everything below runs in your terminal.
 
-### 5.1 Setup
+### 7.1 Setup
 
 ```bash
 cd autoresearch-quantum
@@ -486,7 +637,7 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-### 5.2 Run a single experiment
+### 7.2 Run a single experiment
 
 ```bash
 python -m autoresearch_quantum run-experiment \
@@ -498,7 +649,7 @@ python -m autoresearch_quantum run-experiment \
 This prints a JSON result with the score, failure mode, and experiment ID.
 The full record is saved to `data/default/rung_1/experiments/`.
 
-### 5.3 Run one ratchet step
+### 7.3 Run one ratchet step
 
 ```bash
 python -m autoresearch_quantum run-step \
@@ -510,7 +661,7 @@ them, promotes the best, and saves the step record. Run it again and it
 generates *new* challengers (never repeating), with a new incumbent if one was
 found.
 
-### 5.4 Run a full rung
+### 7.4 Run a full rung
 
 ```bash
 python -m autoresearch_quantum run-rung \
@@ -521,7 +672,7 @@ Runs up to `step_budget` steps (default 3), stopping early if patience runs
 out. Produces `data/default/rung_1/lesson.md` -- read this file. It tells you
 what helped, what hurt, what seems invariant, and what to test next.
 
-### 5.5 Run the full five-rung ratchet
+### 7.5 Run the full five-rung ratchet
 
 ```bash
 python -m autoresearch_quantum run-ratchet \
@@ -536,7 +687,7 @@ This is the full pipeline. Each rung's winner is automatically propagated to
 the next rung. Each rung's lessons narrow the search space for the next.
 When it finishes, you have five lesson files and a final optimised recipe.
 
-### 5.6 Run a transfer evaluation
+### 7.6 Run a transfer evaluation
 
 ```bash
 python -m autoresearch_quantum run-transfer \
@@ -547,7 +698,7 @@ python -m autoresearch_quantum run-transfer \
 Tests a single spec across multiple backend noise models. The output tells you
 the per-backend scores and the pessimistic transfer score.
 
-### 5.7 Reading the output
+### 7.7 Reading the output
 
 After a ratchet run, the most valuable artefacts are:
 
@@ -559,7 +710,7 @@ After a ratchet run, the most valuable artefacts are:
 | `rung_N/propagated_spec.json` | The spec that was carried forward from the previous rung. Compare it with the YAML bootstrap to see what the system changed. |
 | `rung_N/progress.json` | If the run was interrupted, this tells you where it left off. Just re-run the same command to resume. |
 
-### 5.8 Making manual progress with the artefacts
+### 7.8 Making manual progress with the artefacts
 
 The system is designed so that you can interleave human intuition with
 automated search:
@@ -591,22 +742,27 @@ automated search:
    You are now doing what the system does in `run_ratchet` -- but with human
    judgement about what to explore next.
 
-### 5.9 Running the tests
+### 7.9 Running the tests
 
 ```bash
+# Full validation (recommended)
+bash scripts/app.sh validate
+
+# Or directly with pytest
 python -m pytest tests/ -v
 ```
 
-All 21 tests should pass. They take about 13 seconds. If a test fails after
-you edit a YAML config, the most likely cause is that you introduced a
-dimension value that does not correspond to an implemented code path (e.g.,
-`encoder_style: "rzz_lattice"` does not exist in `four_two_two.py`).
+All 335 tests should pass (browser UX tests excluded by default). If a test
+fails after you edit a YAML config, the most likely cause is that you
+introduced a dimension value that does not correspond to an implemented code
+path (e.g., `encoder_style: "rzz_lattice"` does not exist in
+`four_two_two.py`).
 
 
 ---
 
 
-## Part 6: What this system does NOT do (yet)
+## Part 8: What this system does NOT do (yet)
 
 - **It does not run on real quantum hardware by default.** The
   `IBMHardwareExecutor` exists and is wired up, but `enable_hardware: false`
@@ -623,8 +779,10 @@ dimension value that does not correspond to an implemented code path (e.g.,
   `SearchRule` extraction, the `CompositeGenerator` budget allocation, and
   the cross-rung propagation logic.
 
-- **It does not visualise results.** There is no dashboard. The output is
-  JSON and Markdown. You read it, or you write a script to plot it.
+- **CLI output is JSON and Markdown.** The CLI ratchet produces JSON files
+  and Markdown lessons. For interactive exploration, use the Plan C dashboard
+  notebook (`plan_c/00_dashboard.ipynb`), which provides a widget-based
+  interface for running experiments and viewing results.
 
 - **It does not parallelise evaluations.** Each experiment runs sequentially.
   On a machine with multiple cores, you could shard the challenger set across
@@ -634,7 +792,7 @@ dimension value that does not correspond to an implemented code path (e.g.,
 ---
 
 
-## Part 7: Architecture diagram
+## Part 9: Architecture diagram
 
 ```
                           configs/rungs/rung1-5.yaml
@@ -677,6 +835,6 @@ ratchet runs multiple rungs. The lessons tighten the circle with every pass.
 
 ---
 
-*This document was written on 2026-04-04 to describe the system as built.
-The code is the ground truth. If this document contradicts the code, the
-code is correct.*
+*This document was last updated on 2026-04-15 to describe the system as
+built. The code is the ground truth. If this document contradicts the code,
+the code is correct.*

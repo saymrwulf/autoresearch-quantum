@@ -1,7 +1,18 @@
-# Learning Objectives — Per Notebook, Per Section
+# Learning Objectives --- Per Notebook, Per Section
 
 Each objective has a Bloom level and a matched assessment type.
 All four plans teach the same core material; the pedagogical approach differs.
+
+**Entry point:** Open `00_START_HERE.ipynb` to choose your plan. Every content
+notebook links back to Start Here and forward to the next notebook in the plan.
+
+**Assessment types:**
+- **MCQ** (`quiz()`) --- multiple-choice with immediate feedback
+- **Predict** (`predict_choice()`) --- predict an outcome before running code
+- **Reflect** (`reflect()`) --- open-ended reflection graded by keywords
+- **Order** (`order()`) --- rank or sequence items
+
+All assessments are tracked by `LearningTracker` with Bloom's taxonomy levels.
 
 ---
 

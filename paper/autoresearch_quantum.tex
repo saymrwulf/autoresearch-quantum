@@ -913,9 +913,10 @@ re-evaluated, and the patience counter is preserved.
 \label{sec:verification_claims}
 % ============================================================================
 
-The test suite contains 21 tests, each anchored to a specific architectural
-claim. We present them grouped by subsystem, with the falsification condition
-for each.
+The full test suite contains 335 tests across 13 files, covering the research
+engine, teaching layer, notebook structure, and pedagogical quality. Below we
+present the 21 core research-engine tests, grouped by subsystem, with the
+falsification condition for each.
 
 \subsection{Quantum Correctness (3 tests)}
 
@@ -1108,7 +1109,8 @@ with different \code{verification} values. The seeds must differ.
 cd autoresearch-quantum
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-python -m pytest tests/ -v          # 21 tests, ~13 seconds
+python -m pytest tests/ -v          # 335 tests
+bash scripts/app.sh validate       # full validation (lint + types + tests)
 \end{lstlisting}
 
 Requires Python $\geq$ 3.11 and Qiskit $\geq$ 2.3. No GPU needed.

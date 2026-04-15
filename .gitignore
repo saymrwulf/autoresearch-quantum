@@ -32,6 +32,13 @@ paper/*.synctex.gz
 # Ruff
 .ruff_cache/
 
+# Jupyter isolation directories
+.jupyter_config/
+.jupyter_data/
+.jupyter_runtime/
+.ipython/
+.cache/
+
 # Logs
 .logs/
 

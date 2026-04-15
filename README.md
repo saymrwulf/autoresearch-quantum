@@ -117,12 +117,16 @@ The `app.sh` lifecycle manager handles the entire consumer experience:
 | `bash scripts/app.sh bootstrap` | Create venv, install deps, register Jupyter kernel, verify imports |
 | `bash scripts/app.sh start` | Launch JupyterLab (auto-opens `00_START_HERE.ipynb`) |
 | `bash scripts/app.sh start --no-open` | Launch without opening browser |
-| `bash scripts/app.sh stop` | Stop JupyterLab |
-| `bash scripts/app.sh status` | Show venv, server, notebook, and progress status |
+| `bash scripts/app.sh start --foreground` | Run in foreground (Ctrl-C to stop cleanly) |
+| `bash scripts/app.sh start --port 9999` | Use a specific port |
+| `bash scripts/app.sh stop` | Stop JupyterLab (graceful SIGTERM, SIGKILL fallback) |
+| `bash scripts/app.sh restart` | Stop + start |
+| `bash scripts/app.sh status` | Show venv, server, ports, orphan detection |
 | `bash scripts/app.sh validate` | Run full validation: ruff + mypy + pytest |
 | `bash scripts/app.sh validate --quick` | Lint + type check + unit tests only |
-| `bash scripts/app.sh logs` | Tail JupyterLab output |
+| `bash scripts/app.sh logs [-f]` | Show or follow JupyterLab output |
 | `bash scripts/app.sh reset` | Delete learner progress files |
+| `bash scripts/app.sh reset-state` | Reset Jupyter runtime + UI state |
 
 ### Manual installation
 

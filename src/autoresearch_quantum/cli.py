@@ -41,7 +41,7 @@ def _build_spec_from_config(config_path: Path, overrides: list[str]) -> tuple[An
 def _print_json(payload: Any) -> None:
     def _default(value: Any) -> Any:
         if is_dataclass(value):
-            return asdict(value)
+            return asdict(value)  # type: ignore[arg-type]
         return str(value)
 
     print(json.dumps(payload, indent=2, default=_default))

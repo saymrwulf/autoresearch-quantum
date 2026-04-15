@@ -41,8 +41,8 @@ def _record_from_json(payload: dict[str, Any]) -> ExperimentRecord:
         parent_incumbent_id=payload.get("parent_incumbent_id"),
         mutation_note=payload.get("mutation_note", ""),
         spec=_from_dict_spec(payload["spec"]),
-        cheap_result=cheap,  # type: ignore[arg-type]
-        expensive_result=expensive,  # type: ignore[arg-type]
+        cheap_result=cheap,
+        expensive_result=expensive,
         final_score=float(payload.get("final_score", 0.0)),
         promoted_to_expensive=bool(payload.get("promoted_to_expensive", False)),
         became_incumbent=bool(payload.get("became_incumbent", False)),
@@ -85,7 +85,7 @@ class AutoresearchHarness:
         """Collect fingerprints of all experiments already tried in this rung."""
         experiments = self.store.list_experiments(rung)
         return {
-            ExperimentSpec(**{
+            ExperimentSpec(**{  # type: ignore[arg-type]
                 k: tuple(v) if k == "initial_layout" and isinstance(v, list) else v
                 for k, v in exp["spec"].items()
             }).fingerprint()

@@ -1,10 +1,9 @@
-"""Fix math notation in explanation strings across all enhanced notebooks.
+r"""Fix math notation in explanation strings across all enhanced notebooks.
 
 Replaces raw pseudo-LaTeX in HTML explanation text with proper MathJax \(...\)
 delimiters so Jupyter renders them correctly.
 """
 import json
-import re
 from pathlib import Path
 
 NOTEBOOKS = [

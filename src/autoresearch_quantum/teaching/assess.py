@@ -115,10 +115,10 @@ def quiz(
             padding="16px",
             margin="12px 0",
             border_radius="10px",
-            background_color=_QUIZ_BG,  # type: ignore[arg-type]
+            background_color=_QUIZ_BG,
         ),
     )
-    display(box)
+    display(box)  # type: ignore[no-untyped-call]
 
 
 # ── predict: prediction before running next cell ────────────────────────────
@@ -190,10 +190,10 @@ def predict_choice(
             padding="16px",
             margin="12px 0",
             border_radius="10px",
-            background_color="#fff8e1",  # type: ignore[arg-type]
+            background_color="#fff8e1",
         ),
     )
-    display(box)
+    display(box)  # type: ignore[no-untyped-call]
 
 
 # ── reflect: free-response with model answer reveal ─────────────────────────
@@ -250,10 +250,10 @@ def reflect(
             padding="16px",
             margin="12px 0",
             border_radius="10px",
-            background_color="#e3f2fd",  # type: ignore[arg-type]
+            background_color="#e3f2fd",
         ),
     )
-    display(box)
+    display(box)  # type: ignore[no-untyped-call]
 
 
 # ── order: drag-free ordering via dropdowns ─────────────────────────────────
@@ -349,10 +349,10 @@ def order(
             padding="16px",
             margin="12px 0",
             border_radius="10px",
-            background_color=_QUIZ_BG,  # type: ignore[arg-type]
+            background_color=_QUIZ_BG,
         ),
     )
-    display(box)
+    display(box)  # type: ignore[no-untyped-call]
 
 
 # ── checkpoint_summary (unchanged — pure HTML) ─────────────────────────────
@@ -364,7 +364,7 @@ def checkpoint_summary(tracker: LearningTracker, section: str) -> None:
     data = all_data.get(section, {"correct": 0, "incorrect": 0, "total": 0, "pct": 0.0})
 
     if data["total"] == 0:
-        display(HTML(_neutral_html(
+        display(HTML(_neutral_html(  # type: ignore[no-untyped-call]
             f"<strong>Checkpoint — {section}:</strong> No scored questions in this section yet."
         )))
         return
@@ -396,7 +396,7 @@ def checkpoint_summary(tracker: LearningTracker, section: str) -> None:
         msg += "<br>This section needs more work. Re-read and retry the questions above."
     msg += review
 
-    display(HTML(
+    display(HTML(  # type: ignore[no-untyped-call]
         f'<div style="border:2px solid {colour}; padding:12px 16px; margin:16px 0; '
         f'border-radius:8px; background:#fafafa;">{msg}</div>'
     ))
@@ -405,36 +405,43 @@ def checkpoint_summary(tracker: LearningTracker, section: str) -> None:
 # ── Backwards-compatible aliases (old API → new API) ────────────────────────
 # These allow old notebook cells to still work while we migrate.
 
-def multiple_choice(tracker, qid, question, options, correct, answer="?",
-                    bloom="remember", explanation=""):
+def multiple_choice(tracker: LearningTracker, qid: str, question: str,
+                    options: dict[str, str], correct: str, answer: str = "?",
+                    bloom: str = "remember", explanation: str = "") -> None:
     """Legacy wrapper — redirects to quiz()."""
     opt_list = [f"({k}) {v}" for k, v in options.items()]
     correct_idx = list(options.keys()).index(correct.lower())
     quiz(tracker, qid, question, opt_list, correct_idx, bloom, explanation)
 
-def predict(tracker, qid, question, your_prediction="?", bloom="understand"):
+def predict(tracker: LearningTracker, qid: str, question: str,
+            your_prediction: str = "?", bloom: str = "understand") -> None:
     """Legacy wrapper — use predict_choice() instead."""
     warnings.warn(
         "predict() is deprecated and does nothing. Use predict_choice() instead.",
         DeprecationWarning, stacklevel=2,
     )
 
-def check_prediction(tracker, qid, actual_value=None, was_correct=False, explanation=""):
+def check_prediction(tracker: LearningTracker, qid: str, actual_value: Any = None,
+                     was_correct: bool = False, explanation: str = "") -> None:
     """Legacy wrapper — use predict_choice() instead."""
     warnings.warn(
         "check_prediction() is deprecated and does nothing. Use predict_choice() instead.",
         DeprecationWarning, stacklevel=2,
     )
 
-def numerical_answer(tracker, qid, question, answer=0.0, correct=0.0,
-                     tolerance=0.01, bloom="apply", explanation=""):
+def numerical_answer(tracker: LearningTracker, qid: str, question: str,
+                     answer: float = 0.0, correct: float = 0.0,
+                     tolerance: float = 0.01, bloom: str = "apply",
+                     explanation: str = "") -> None:
     """Legacy wrapper — use quiz() instead."""
     warnings.warn(
         "numerical_answer() is deprecated and does nothing. Use quiz() instead.",
         DeprecationWarning, stacklevel=2,
     )
 
-def free_response(tracker, qid, question, answer="?", bloom="evaluate", model_answer=""):
+def free_response(tracker: LearningTracker, qid: str, question: str,
+                  answer: str = "?", bloom: str = "evaluate",
+                  model_answer: str = "") -> None:
     """Legacy wrapper — redirects to reflect()."""
     warnings.warn(
         "free_response() is deprecated. Use reflect() directly.",
@@ -442,16 +449,19 @@ def free_response(tracker, qid, question, answer="?", bloom="evaluate", model_an
     )
     reflect(tracker, qid, question, model_answer, bloom)
 
-def code_challenge(tracker, qid, description, test_passed=False,
-                   bloom="apply", hint="", explanation=""):
+def code_challenge(tracker: LearningTracker, qid: str, description: str,
+                   test_passed: bool = False, bloom: str = "apply",
+                   hint: str = "", explanation: str = "") -> None:
     """Legacy wrapper — no replacement; use code cells with assertions."""
     warnings.warn(
         "code_challenge() is deprecated and does nothing. Use code cells with assertions.",
         DeprecationWarning, stacklevel=2,
     )
 
-def concept_sort(tracker, qid, instruction, student_order=None,
-                 correct_order=None, bloom="analyze", explanation=""):
+def concept_sort(tracker: LearningTracker, qid: str, instruction: str,
+                 student_order: list[str] | None = None,
+                 correct_order: list[str] | None = None, bloom: str = "analyze",
+                 explanation: str = "") -> None:
     """Legacy wrapper — use order() instead."""
     warnings.warn(
         "concept_sort() is deprecated. Use order() directly.",

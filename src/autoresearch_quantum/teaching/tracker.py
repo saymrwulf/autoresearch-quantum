@@ -227,7 +227,7 @@ class LearningTracker:
             html_parts.append("</ul>")
 
         html_parts.append("</div>")
-        display(HTML("\n".join(html_parts)))
+        display(HTML("\n".join(html_parts)))  # type: ignore[no-untyped-call]
 
     # ── persistence ─────────────────────────────────────────────────────
     def save(self, path: str | Path | None = None) -> Path:

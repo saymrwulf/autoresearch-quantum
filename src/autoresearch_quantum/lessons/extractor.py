@@ -72,9 +72,9 @@ def extract_rung_lesson(
 
     invariants: list[str] = []
     for dimension in rung_config.search_space.dimensions:
-        values = {record["spec"][dimension] for record in top_records}
-        if len(values) == 1:
-            value = next(iter(values))
+        top_values = {record["spec"][dimension] for record in top_records}
+        if len(top_values) == 1:
+            value = next(iter(top_values))
             invariants.append(f"Top-ranked experiments consistently kept {dimension}={value}.")
 
     hardware_specific = [

@@ -105,20 +105,20 @@ class LocalCheapExecutor:
                 )
                 aggregate[context_name].append(summary)
 
-            x_value = float(aggregate["logical_x"][-1]["expectation"])
-            y_value = float(aggregate["logical_y"][-1]["expectation"])
-            spectator = float(aggregate["spectator_z"][-1]["expectation"])
-            acceptance = float(aggregate["acceptance"][-1]["acceptance_rate"])
+            x_value = float(aggregate["logical_x"][-1]["expectation"])  # type: ignore[arg-type]
+            y_value = float(aggregate["logical_y"][-1]["expectation"])  # type: ignore[arg-type]
+            spectator = float(aggregate["spectator_z"][-1]["expectation"])  # type: ignore[arg-type]
+            acceptance = float(aggregate["acceptance"][-1]["acceptance_rate"])  # type: ignore[arg-type]
             repeat_scores.append(logical_magic_witness(x_value, y_value, spectator) * acceptance)
 
-        acceptance_rate = fmean(float(item["acceptance_rate"]) for item in aggregate["acceptance"])
-        logical_x = fmean(float(item["expectation"]) for item in aggregate["logical_x"])
-        logical_y = fmean(float(item["expectation"]) for item in aggregate["logical_y"])
-        spectator_z = fmean(float(item["expectation"]) for item in aggregate["spectator_z"])
+        acceptance_rate = fmean(float(item["acceptance_rate"]) for item in aggregate["acceptance"])  # type: ignore[arg-type]
+        logical_x = fmean(float(item["expectation"]) for item in aggregate["logical_x"])  # type: ignore[arg-type]
+        logical_y = fmean(float(item["expectation"]) for item in aggregate["logical_y"])  # type: ignore[arg-type]
+        spectator_z = fmean(float(item["expectation"]) for item in aggregate["spectator_z"])  # type: ignore[arg-type]
         witness = logical_magic_witness(logical_x, logical_y, spectator_z)
         codespace_rate = fmean(
             [
-                float(item["acceptance_rate"])
+                float(item["acceptance_rate"])  # type: ignore[arg-type]
                 for summaries in aggregate.values()
                 for item in summaries
             ]
@@ -156,8 +156,8 @@ class LocalCheapExecutor:
         score, quality, _ = score_metrics(metrics, "cheap", rung_config.score)
         counts_summary = {
             name: {
-                "mean_acceptance_rate": fmean(float(item["acceptance_rate"]) for item in summaries),
-                "mean_expectation": fmean(float(item["expectation"]) for item in summaries),
+                "mean_acceptance_rate": fmean(float(item["acceptance_rate"]) for item in summaries),  # type: ignore[arg-type]
+                "mean_expectation": fmean(float(item["expectation"]) for item in summaries),  # type: ignore[arg-type]
                 "latest": summaries[-1],
             }
             for name, summaries in aggregate.items()

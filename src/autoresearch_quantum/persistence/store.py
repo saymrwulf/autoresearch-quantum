@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ..models import (
     ExperimentRecord,
@@ -47,7 +47,7 @@ class ResearchStore:
 
     def load_experiment(self, rung: int, experiment_id: str) -> dict[str, Any]:
         path = self.experiment_dir(rung) / f"{experiment_id}.json"
-        return json.loads(path.read_text(encoding="utf-8"))
+        return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
     def list_experiments(self, rung: int) -> list[dict[str, Any]]:
         return [
@@ -132,4 +132,4 @@ class ResearchStore:
         path = self.rung_dir(rung) / "propagated_spec.json"
         if not path.exists():
             return None
-        return json.loads(path.read_text(encoding="utf-8"))
+        return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))

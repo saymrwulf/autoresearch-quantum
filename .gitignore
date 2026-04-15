@@ -31,3 +31,10 @@ paper/*.synctex.gz
 
 # Ruff
 .ruff_cache/
+
+# Logs
+.logs/
+
+# Build artifacts
+dist/
+build/

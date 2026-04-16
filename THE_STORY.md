@@ -629,8 +629,6 @@ autoresearch-quantum/
     test_scoring.py        Score functions
     test_teaching.py       Assessment widgets & tracker
 
-  .pre-commit-config.yaml   Ruff, mypy, nbstripout, hygiene hooks
-
   data/                    Output directory (created at runtime)
     default/
       rung_1/

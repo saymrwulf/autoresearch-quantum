@@ -89,7 +89,6 @@ autoresearch-quantum/
 │   ├── test_persistence.py     JSON store round-trips
 │   ├── test_scoring.py         Score function correctness
 │   └── test_teaching.py        Assessment widget & tracker tests
-├── .pre-commit-config.yaml     Ruff, mypy, nbstripout, hygiene hooks
 ├── THE_STORY.md                Narrative documentation (system design)
 ├── pyproject.toml              Build config, dependencies, tool settings
 └── README.md
@@ -400,15 +399,11 @@ pip install playwright && python -m playwright install chromium
 
 ### Static analysis
 
+`app.sh validate` runs all three automatically:
+
 - **Ruff** --- linting and formatting (E, F, W, I, UP, B, SIM rule sets)
 - **mypy** --- strict mode type checking across all source files
-- **nbstripout** --- strips notebook outputs before commit
-
-All three run automatically as **pre-commit hooks** (`.pre-commit-config.yaml`). Install with:
-
-```bash
-.venv/bin/pre-commit install
-```
+- **nbstripout** --- strips notebook outputs (run manually: `.venv/bin/nbstripout notebooks/**/*.ipynb`)
 
 ## Extending The Ladder
 

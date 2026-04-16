@@ -491,21 +491,49 @@ The project includes a lifecycle manager (`scripts/app.sh`) that handles the
 entire consumer experience from first clone to running notebooks:
 
 ```bash
-bash scripts/app.sh bootstrap     # venv, pip install, kernel registration, import check
-bash scripts/app.sh start         # launch JupyterLab, open 00_START_HERE.ipynb
-bash scripts/app.sh stop          # graceful shutdown
-bash scripts/app.sh status        # venv, server, notebook, progress summary
-bash scripts/app.sh validate      # ruff + mypy + full test suite
-bash scripts/app.sh validate --quick  # lint + type check + unit tests only
-bash scripts/app.sh logs          # tail JupyterLab output
-bash scripts/app.sh reset         # delete learner progress files
+bash scripts/app.sh bootstrap           # venv, pip install, kernel registration, import check
+bash scripts/app.sh start               # launch JupyterLab in background, open browser
+bash scripts/app.sh start --foreground  # run in foreground (Ctrl-C to stop)
+bash scripts/app.sh start --no-open     # launch without opening browser
+bash scripts/app.sh start --port 9999   # use a specific port
+bash scripts/app.sh stop                # graceful shutdown (SIGTERM, wait, SIGKILL fallback)
+bash scripts/app.sh restart             # stop + start
+bash scripts/app.sh status              # venv, server, ports, orphan detection
+bash scripts/app.sh validate            # ruff + mypy + full test suite
+bash scripts/app.sh validate --quick    # lint + type check + unit tests only
+bash scripts/app.sh logs [-f]           # show or follow JupyterLab output
+bash scripts/app.sh reset               # delete learner progress files
+bash scripts/app.sh reset-state         # reset Jupyter runtime + UI state
 ```
 
 Bootstrap checks Python >= 3.11, creates the venv, installs the package with
-dev and notebook dependencies, registers a Jupyter kernel, and verifies that
-core imports succeed. Start finds a free port (8888-8899), launches JupyterLab
-in the background with PID tracking, and opens the browser directly to
-`00_START_HERE.ipynb`.
+dev and notebook dependencies, registers a Jupyter kernel with `--sys-prefix`
+(venv-local, not user-global), and verifies that core imports succeed.
+
+**Start runs Jupyter in the background by default.** The process survives
+terminal close. The terminal prints the URL and returns immediately --- you are
+free to close the tab or use it for other work. Jupyter keeps running until you
+explicitly stop it with `app.sh stop`. The `--foreground` flag is the
+alternative: it occupies the terminal, and Ctrl-C or closing the tab stops
+Jupyter cleanly with no orphan process left behind.
+
+Start finds a free port by scanning 8888-8899 via `lsof`, writes a PID file
+at `.logs/jupyter.pid`, and opens the browser directly to
+`00_START_HERE.ipynb`. All Jupyter state (config, data, runtime, IPython,
+matplotlib cache) is isolated into project-local directories, preventing
+cross-project interference.
+
+This project follows the [JupyterManager](https://github.com/saymrwulf/JupyterManager)
+lifecycle specification. The cross-project `jupyter-hub` CLI can discover and
+manage this project alongside other Jupyter-enabled projects:
+
+```bash
+jupyter-hub status        # show all projects (running/stopped)
+jupyter-hub ports         # port allocation map (8888-8899)
+jupyter-hub stop-all      # stop all Jupyter instances
+jupyter-hub orphans       # find untracked processes
+jupyter-hub kill-orphans  # kill them
+```
 
 Validation runs the full quality pipeline: ruff linting, mypy strict type
 checking, and the pytest suite (335 tests, excluding browser UX by default).
@@ -632,9 +660,16 @@ output. Everything below runs in your terminal.
 
 ```bash
 cd autoresearch-quantum
+bash scripts/app.sh bootstrap
+```
+
+This creates the venv, installs all dependencies, registers the Jupyter kernel,
+and verifies imports. If you prefer manual setup:
+
+```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev,notebooks]"
 ```
 
 ### 7.2 Run a single experiment
@@ -835,6 +870,6 @@ ratchet runs multiple rungs. The lessons tighten the circle with every pass.
 
 ---
 
-*This document was last updated on 2026-04-15 to describe the system as
+*This document was last updated on 2026-04-16 to describe the system as
 built. The code is the ground truth. If this document contradicts the code,
 the code is correct.*

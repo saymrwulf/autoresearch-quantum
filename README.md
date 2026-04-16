@@ -119,9 +119,9 @@ The `app.sh` lifecycle manager handles the entire consumer experience:
 | Command | What it does |
 |---------|-------------|
 | `bash scripts/app.sh bootstrap` | Create venv, install deps, register Jupyter kernel, verify imports |
-| `bash scripts/app.sh start` | Launch JupyterLab (auto-opens `00_START_HERE.ipynb`) |
-| `bash scripts/app.sh start --no-open` | Launch without opening browser |
-| `bash scripts/app.sh start --foreground` | Run in foreground (Ctrl-C to stop cleanly) |
+| `bash scripts/app.sh start` | Launch JupyterLab in background (survives terminal close; stop with `app.sh stop`) |
+| `bash scripts/app.sh start --no-open` | Launch in background without opening browser |
+| `bash scripts/app.sh start --foreground` | Run in foreground (Ctrl-C or closing terminal stops it) |
 | `bash scripts/app.sh start --port 9999` | Use a specific port |
 | `bash scripts/app.sh stop` | Stop JupyterLab (graceful SIGTERM, SIGKILL fallback) |
 | `bash scripts/app.sh restart` | Stop + start |

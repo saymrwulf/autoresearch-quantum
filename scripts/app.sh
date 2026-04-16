@@ -241,7 +241,11 @@ cmd_start() {
         local url
         url=$(_server_url || echo "http://localhost:8888/lab/tree/00_START_HERE.ipynb")
         warn "JupyterLab already running (PID $existing_pid)"
+        echo ""
         echo "  $url"
+        echo ""
+        echo "  To stop:   bash scripts/app.sh stop"
+        echo "  To restart: bash scripts/app.sh restart"
         if $open_browser; then
             if command -v open &>/dev/null; then
                 open "$url"
@@ -267,10 +271,13 @@ cmd_start() {
 
     # Foreground mode — Ctrl-C stops the server cleanly
     if $foreground; then
-        info "Starting JupyterLab on port $port (foreground, Ctrl-C to stop)..."
+        info "Starting JupyterLab on port $port (foreground mode)..."
         local url="http://localhost:$port/lab/tree/00_START_HERE.ipynb"
         echo ""
         echo "  ${BOLD}$url${NC}"
+        echo ""
+        echo "  Jupyter is running in the foreground — this terminal is occupied."
+        echo "  Press Ctrl-C to stop. Closing this terminal also stops Jupyter."
         echo ""
         if $open_browser; then
             # Open browser after a short delay (in background)
@@ -326,9 +333,16 @@ cmd_start() {
     done
 
     local url="http://localhost:$port/lab/tree/00_START_HERE.ipynb"
-    ok "JupyterLab running (PID $pid)"
+    ok "JupyterLab running (PID $pid) on port $port"
     echo ""
     echo "  ${BOLD}$url${NC}"
+    echo ""
+    echo "  Jupyter is running in the background — this terminal is free."
+    echo "  It will keep running even if you close this terminal."
+    echo ""
+    echo "  To stop:   bash scripts/app.sh stop"
+    echo "  To check:  bash scripts/app.sh status"
+    echo "  Logs:      bash scripts/app.sh logs -f"
     echo ""
 
     if $open_browser; then

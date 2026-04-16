@@ -45,3 +45,4 @@ paper/*.synctex.gz
 # Build artifacts
 dist/
 build/
+uv.lock

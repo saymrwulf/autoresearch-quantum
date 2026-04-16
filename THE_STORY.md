@@ -478,8 +478,8 @@ quality invariants across all content notebooks:
 - All four plans collectively cover core concepts (stabiliser, magic, witness, ratchet)
 
 These tests catch pedagogical regressions the same way unit tests catch code
-regressions. Adding a new notebook or modifying an existing one will fail CI
-if it violates these invariants.
+regressions. Adding a new notebook or modifying an existing one will fail
+validation (`app.sh validate`) if it violates these invariants.
 
 
 ---
@@ -629,7 +629,6 @@ autoresearch-quantum/
     test_scoring.py        Score functions
     test_teaching.py       Assessment widgets & tracker
 
-  .github/workflows/ci.yml  CI: lint, type check, test matrix, notebook execution
   .pre-commit-config.yaml   Ruff, mypy, nbstripout, hygiene hooks
 
   data/                    Output directory (created at runtime)

@@ -89,7 +89,6 @@ autoresearch-quantum/
 │   ├── test_persistence.py     JSON store round-trips
 │   ├── test_scoring.py         Score function correctness
 │   └── test_teaching.py        Assessment widget & tracker tests
-├── .github/workflows/ci.yml    CI: lint, type check, test matrix, notebook execution
 ├── .pre-commit-config.yaml     Ruff, mypy, nbstripout, hygiene hooks
 ├── THE_STORY.md                Narrative documentation (system design)
 ├── pyproject.toml              Build config, dependencies, tool settings
@@ -410,14 +409,6 @@ All three run automatically as **pre-commit hooks** (`.pre-commit-config.yaml`).
 ```bash
 .venv/bin/pre-commit install
 ```
-
-### CI/CD
-
-The GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on every push and PR:
-
-1. **Lint job** --- ruff check, ruff format --check, mypy strict (Python 3.11)
-2. **Test job** --- full test suite on Python 3.11 and 3.12 matrix
-3. **Notebook execution job** --- runs all 12 notebooks end-to-end via nbclient
 
 ## Extending The Ladder
 

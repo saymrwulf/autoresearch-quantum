@@ -96,6 +96,10 @@ autoresearch-quantum/
 └── README.md
 ```
 
+## Jupyter Lifecycle
+
+This project follows the [JupyterManager](https://github.com/saymrwulf/JupyterManager) lifecycle specification. `scripts/app.sh` provides isolated Jupyter directories, auto port allocation (8888--8899), PID tracking, orphan detection, and graceful stop. The cross-project `jupyter-hub` CLI can discover and manage this project alongside other Jupyter-enabled projects on the same machine.
+
 ## Quick Start
 
 The fastest way to get running:
